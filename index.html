@@ -722,9 +722,13 @@ body.jotform-open #formFrame {
 </div>
 
 <div style="text-align:center; margin:10px auto 16px auto;">
-  <div id="introRaceDate" style="display:inline-block; background:rgba(255,255,255,0.65); padding:5px 10px; font-size:15px;">
-    Ημερομηνία διεξαγωγής του αγώνα: ΘΑ ΑΝΑΚΟΙΝΩΘΕΙ
-  </div>
+<div id="introRaceDate" style="display:inline-block; background:rgba(255,255,255,0.65); padding:5px 10px; font-size:15px;">
+  Ημερομηνία διεξαγωγής του αγώνα: <span id="raceDate">ΘΑ ΑΝΑΚΟΙΝΩΘΕΙ</span>
+</div>
+
+<div id="introSubmitExpiration" style="margin-top:6px; font-size:14px; font-weight:bold; color:#143a63;">
+  Λήξη υποβολής συμμετοχών: <span id="submitExpiration">—</span>
+</div>
 </div>
 
 <div style="font-size:14px; line-height:1.5; max-width:620px; margin:16px auto 18px auto; text-align:center;">
@@ -894,6 +898,10 @@ body.jotform-open #formFrame {
 
  const CONFIG = {
   EVENT_TITLE: "Πανελλήνιο Κύπελλο ORCi 2026",
+   RACE_DATE: "ΘΑ ΑΝΑΚΟΙΝΩΘΕΙ",
+SUBMIT_EXPIRATION: "—",
+SETTINGS_ENDPOINT: "https://script.google.com/macros/s/AKfycbzjSJuN1YtHMyZkuV3XKeLJxT4ufe0xBhdVbjehFj9v_tzONu7eRAr3WEqBdLa3H0YJ/exec?action=settings&settings=189pf7AVsGF4cZl38-Y1jKIE-0h5z_R2xIPEXxPSD8q4",
+   
   BOAT_LOOKUP_URL: "https://script.google.com/macros/s/AKfycbzOp-9gQ9xMZtb7GxrLcWW_Nc5yrBu7KbmqDVYlI3s1GQ3wJhmOCfKyaoKgvTfttI2v/exec",
   PERSON_LOOKUP_URL: "https://script.google.com/macros/s/AKfycbw-zgZZeHRC6S5_f1xGkTwx-wXcFNq9z2O4cfhzAHSULQNDrwCp88vcvgU-617pgcg1/exec",
 
@@ -908,6 +916,36 @@ body.jotform-open #formFrame {
   INFO_PHONE: "210 4101 113"
 };
 
+function loadRaceSettingsFromSheet() {
+  if (!CONFIG.SETTINGS_ENDPOINT) return;
+
+  window.applyRaceSettings = function (data) {
+    if (!data || data.success === false) return;
+
+    if (data.raceTitle) {
+      CONFIG.EVENT_TITLE = data.raceTitle;
+    const raceTitleEl = document.getElementById("eventTitle");
+if (raceTitleEl) raceTitleEl.textContent = data.raceTitle;
+    }
+
+    if (data.raceDate) {
+      CONFIG.RACE_DATE = data.raceDate;
+      const raceDateEl = document.getElementById("raceDate");
+      if (raceDateEl) raceDateEl.textContent = data.raceDate;
+    }
+
+    if (data.submitExpiration) {
+      CONFIG.SUBMIT_EXPIRATION = data.submitExpiration;
+      const submitExpirationEl = document.getElementById("submitExpiration");
+      if (submitExpirationEl) submitExpirationEl.textContent = data.submitExpiration;
+    }
+  };
+
+  const script = document.createElement("script");
+  script.src = CONFIG.SETTINGS_ENDPOINT + "&callback=applyRaceSettings";
+  document.body.appendChild(script);
+}
+loadRaceSettingsFromSheet();    
 const BOAT_LOOKUP_URL = CONFIG.BOAT_LOOKUP_URL;
 const PERSON_LOOKUP_URL = CONFIG.PERSON_LOOKUP_URL;
 const JOTFORM_BASE_URL = CONFIG.JOTFORM_BASE_URL;
