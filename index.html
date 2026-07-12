@@ -823,6 +823,10 @@ body.jotform-open #formFrame {
     <td style="border:1px solid #bfb6aa; padding:8px; font-weight:bold; background:#f1f4ef;">Όμιλος</td>
     <td style="border:1px solid #bfb6aa; padding:8px;"><span class="club"></span></td>
   </tr>
+  <tr>
+  <td style="border:1px solid #bfb6aa; padding:8px; font-weight:bold; background:#f1f4ef;">Αρ. Δελτίου</td>
+  <td style="border:1px solid #bfb6aa; padding:8px;"><span class="cardNumber"></span></td>
+</tr>
 </table>
   </div>
 
@@ -1608,10 +1612,12 @@ async function lookupPerson(input) {
  const row = input.parentElement.parentElement;
   const nameEl = row.querySelector(".name");
   const clubEl = row.querySelector(".club");
+  const cardEl = row.querySelector(".cardNumber");
   const statusEl = row.querySelector(".personStatus");
 
   nameEl.innerText = "";
   clubEl.innerText = "";
+  if (cardEl) cardEl.innerText = "";
 
 if (statusEl) {
   statusEl.innerText = "✔ Βρέθηκε";
@@ -1638,6 +1644,7 @@ refreshWosrSelectors();
 
     nameEl.innerText = json.data.name || "";
  clubEl.innerText = shortClubName(json.data.club || "");
+    if (cardEl) cardEl.innerText = input.value.trim();
     
 const crewSectionEl = document.getElementById("crewSection");
 
