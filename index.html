@@ -1873,6 +1873,16 @@ function refreshWosrSelectors() {
   const box = document.getElementById("wosrSelectBox");
 
   if (!select1 || !select2 || !box) return;
+  const rule = String(CONFIG.OSR_RULE || "NONE").trim().toUpperCase();
+
+if (rule === "NONE" || rule === "NO" || rule === "ΟΧΙ" || rule === "") {
+  box.style.display = "none";
+  select1.value = "";
+  select2.value = "";
+  select1.removeAttribute("required");
+  select2.removeAttribute("required");
+  return;
+}
 
   const previous1 = select1.value;
   const previous2 = select2.value;
