@@ -913,6 +913,7 @@ body.jotform-open #formFrame {
    RACE_DATE: "ΘΑ ΑΝΑΚΟΙΝΩΘΕΙ",
 SUBMIT_EXPIRATION: "—",
 SETTINGS_ENDPOINT: "https://script.google.com/macros/s/AKfycbzjSJuN1YtHMyZkuV3XKeLJxT4ufe0xBhdVbjehFj9v_tzONu7eRAr3WEqBdLa3H0YJ/exec?action=settings&settings=189pf7AVsGF4cZl38-Y1jKIE-0h5z_R2xIPEXxPSD8q4",
+   OSR_RULE: "NONE",
    
   BOAT_LOOKUP_URL: "https://script.google.com/macros/s/AKfycbzOp-9gQ9xMZtb7GxrLcWW_Nc5yrBu7KbmqDVYlI3s1GQ3wJhmOCfKyaoKgvTfttI2v/exec",
   PERSON_LOOKUP_URL: "https://script.google.com/macros/s/AKfycbw-zgZZeHRC6S5_f1xGkTwx-wXcFNq9z2O4cfhzAHSULQNDrwCp88vcvgU-617pgcg1/exec",
@@ -928,6 +929,26 @@ SETTINGS_ENDPOINT: "https://script.google.com/macros/s/AKfycbzjSJuN1YtHMyZkuV3XK
   INFO_PHONE: "210 4101 113"
 };
 
+function applyOsrRule() {
+  const box = document.getElementById("wosrSelectBox");
+  if (!box) return;
+
+  const rule = String(CONFIG.OSR_RULE || "NONE").trim().toUpperCase();
+
+  if (rule === "NONE" || rule === "NO" || rule === "ΟΧΙ" || rule === "") {
+    box.style.display = "none";
+
+    box.querySelectorAll("select").forEach(function (select) {
+      select.value = "";
+      select.removeAttribute("required");
+    });
+
+    return;
+  }
+
+  box.style.display = "block";
+}
+    
 function loadRaceSettingsFromSheet() {
   if (!CONFIG.SETTINGS_ENDPOINT) return;
 
@@ -951,6 +972,8 @@ if (raceTitleEl) raceTitleEl.textContent = data.raceTitle;
       const submitExpirationEl = document.getElementById("submitExpiration");
       if (submitExpirationEl) submitExpirationEl.textContent = data.submitExpiration;
     }
+    CONFIG.OSR_RULE = String(data.osrRule || CONFIG.OSR_RULE || "NONE").trim().toUpperCase();
+    applyOsrRule();
   };
 
   const script = document.createElement("script");
