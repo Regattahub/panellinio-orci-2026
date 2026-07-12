@@ -1443,10 +1443,22 @@ if (acceptTerms && !acceptTerms.checked) {
         return;
       }
 
+      const captainState = getCaptainState();
+
+if (
+  !captainState.card.trim() ||
+  !captainState.name.trim() ||
+  captainState.name.trim() === "Δεν βρέθηκε"
+) {
+  alert("Παρακαλώ συμπληρώστε και αναζητήστε πρώτα έγκυρο αριθμό δελτίου κυβερνήτη.");
+  document.getElementById("captainCardInput")?.focus();
+  return;
+}
       const crewRowsForCheck = getCrewPdfRows();
 
       if (crewRowsForCheck.length === 0) {
-        alert("Δεν έχει προστεθεί κανένα μέλος πληρώματος.\n\nΠάτησε πρώτα '+ Προσθήκη μέλους', βάλε αριθμό δελτίου και πάτησε 🔍.");
+       alert("Πρέπει να προστεθεί τουλάχιστον ένα μέλος πληρώματος.\n\nΒάλτε έναν ή περισσότερους αριθμούς στο πλαίσιο ΠΛΗΡΩΜΑ και πατήστε ΑΝΑΖΗΤΗΣΗ ΟΛΩΝ.");
+return;
         return;
       }
 const wosr1 = document.getElementById("wosrMember1")?.value || "";
@@ -1637,7 +1649,7 @@ if (acceptTerms && !acceptTerms.checked) {
   actions.style.display = "none";
 
 document.getElementById("crewScreen").style.display = "block";
-document.getElementById("crewSection").style.display = "block";
+document.getElementById("crewSection").style.display = "none";
 formWrap.style.display = "none";
 
   window.scrollTo({ top: 0, behavior: "smooth" });
