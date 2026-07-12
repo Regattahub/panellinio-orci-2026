@@ -1455,8 +1455,12 @@ const wosr2 = document.getElementById("wosrMember2")?.value || "";
 
 const osrRule = String(CONFIG.OSR_RULE || "NONE").trim().toUpperCase();
 
-const osrRequired = !(osrRule === "NONE" || osrRule === "NO" || osrRule === "OXI" || osrRule === "ΟΧΙ" || osrRule === "");
+const osrBox = document.getElementById("wosrSelectBox");
+const osrBoxVisible = osrBox && window.getComputedStyle(osrBox).display !== "none";
 
+const osrRequired =
+  osrBoxVisible &&
+  !(osrRule === "NONE" || osrRule === "NO" || osrRule === "OXI" || osrRule === "ΟΧΙ" || osrRule === "");
 if (osrRequired) {
   if (!wosr1 || !wosr2) {
     alert("Παρακαλώ επιλέξτε δύο εξοικειωμένα μέλη πληρώματος WS OSR 6.05.3.");
