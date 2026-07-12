@@ -1613,6 +1613,25 @@ formWrap.style.display = "none";
 
 
 // 👉 ΒΑΖΕΙΣ ΕΔΩ ΤΗ ΝΕΑ FUNCTION
+    function updateCrewMemberSearchButton(input) {
+  const row = input.closest("tr");
+  if (!row) return;
+
+  const btn = row.querySelector(".memberSearchBtn");
+  if (!btn) return;
+
+  if (input.value.trim()) {
+    btn.style.background = "#dff0d8";
+    btn.style.borderColor = "#4b8f29";
+    btn.style.color = "#143a16";
+    btn.style.fontWeight = "bold";
+  } else {
+    btn.style.background = "";
+    btn.style.borderColor = "";
+    btn.style.color = "";
+    btn.style.fontWeight = "";
+  }
+}
 async function lookupPerson(input) {
   const id = input.value.trim();
   if (!id) return;
@@ -1767,14 +1786,14 @@ function addCrewMember() {
   tr.innerHTML = `
     <td class="rowNo" style="border:1px solid #bfb6aa; padding:6px; text-align:center;"></td>
     <td style="border:1px solid #bfb6aa; padding:6px;">
-     <input type="text" placeholder="19012" style="width:75px; height:36px; font-size:16px; text-align:center;">
+ <input type="text" placeholder="19012" oninput="updateCrewMemberSearchButton(this)" style="width:75px; height:36px; font-size:16px; text-align:center;">
       <div class="personStatus" style="font-weight:bold; margin-top:6px; font-size:12px;"></div>
     </td>
     <td style="border:1px solid #bfb6aa; padding:6px;"><span class="name"></span></td>
     <td style="border:1px solid #bfb6aa; padding:6px;"><span class="club"></span></td>
    <td style="border:1px solid #bfb6aa; padding:6px; text-align:center;">
 <button type="button"
-        class="crewSearchBtn"
+       class="crewSearchBtn memberSearchBtn"
         onclick="lookupPerson(this.closest('tr').querySelector('input'))"
         style="background:#f1f4ef; color:#2f241d; border:1px solid #bfb6aa; padding:6px 8px; font-weight:bold; cursor:pointer; font-size:12px; white-space:nowrap;">
   🔍 ΑΝΑΖΗΤΗΣΗ ΜΕΛΟΥΣ
