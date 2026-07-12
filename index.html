@@ -859,7 +859,7 @@ body.jotform-open #formFrame {
     Για μεμονωμένη προσθήκη, πατήστε το κουμπί <strong>+ Προσθήκη μέλους</strong>.
   </div>
 
-<div id="crewList"></div>
+<div id="crewList" style="width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;"></div>
 
 <div id="addCrewButtonBox" style="text-align:center; margin:12px 0 14px 0;">
   <button class="btn secondary" type="button" onclick="addCrewMemberSafe()">
@@ -1763,7 +1763,7 @@ function addCrewMember() {
 
   if (!table) {
     document.getElementById("crewList").innerHTML = `
-      <table id="crewTable" style="width:100%; border-collapse:collapse; font-size:15px; margin-top:14px;">
+      <table id="crewTable" style="width:100%; min-width:640px; border-collapse:collapse; font-size:15px; margin-top:14px;">
         <thead>
           <tr style="background:#f1f4ef;">
             <th style="border:1px solid #bfb6aa; padding:6px; width:45px;">Α/Α</th>
