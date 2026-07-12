@@ -1453,15 +1453,21 @@ if (acceptTerms && !acceptTerms.checked) {
 const wosr1 = document.getElementById("wosrMember1")?.value || "";
 const wosr2 = document.getElementById("wosrMember2")?.value || "";
 
-if (!wosr1 || !wosr2) {
-  alert("Παρακαλώ επιλέξτε δύο εξοικειωμένα μέλη πληρώματος WS OSR 6.05.3.");
-  return;
-}
+const osrRule = String(CONFIG.OSR_RULE || "NONE").trim().toUpperCase();
 
-if (wosr1 === wosr2) {
-  alert("Παρακαλώ επιλέξτε δύο διαφορετικά μέλη πληρώματος.");
-  return;
-}
+const osrRequired = !(osrRule === "NONE" || osrRule === "NO" || osrRule === "OXI" || osrRule === "ΟΧΙ" || osrRule === "");
+
+if (osrRequired) {
+  if (!wosr1 || !wosr2) {
+    alert("Παρακαλώ επιλέξτε δύο εξοικειωμένα μέλη πληρώματος WS OSR 6.05.3.");
+    return;
+  }
+
+  if (wosr1 === wosr2) {
+    alert("Παρακαλώ επιλέξτε δύο διαφορετικά μέλη πληρώματος.");
+    return;
+  }
+}      
       saveEntryState();
 
       const formUrl = buildPrefillUrl(lastFoundData);
