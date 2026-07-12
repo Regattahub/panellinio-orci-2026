@@ -802,13 +802,9 @@ body.jotform-open #formFrame {
 </label><br>
 
 <div style="display:flex; justify-content:center; align-items:center; gap:8px; margin-top:8px;">
-  <input type="text" placeholder="π.χ. 19012" style="height:42px; width:180px; font-size:18px; text-align:center;">
+  <input id="captainCardInput" type="text" placeholder="π.χ. 19012" style="height:42px; width:180px; font-size:18px; text-align:center;">
 
-<button type="button"
-        onclick="lookupPerson(this.previousElementSibling)"
-        style="margin-top:0; background:#f1f4ef; color:#2f241d; border:1px solid #bfb6aa; height:42px; padding:0 16px; font-weight:bold; cursor:pointer; white-space:nowrap;">
-  🔍 ΑΝΑΖΗΤΗΣΗ ΚΥΒΕΡΝΗΤΗ
-</button>
+
 </div>
 
 <div style="height:14px;"></div>
@@ -828,6 +824,14 @@ body.jotform-open #formFrame {
   <td style="border:1px solid #bfb6aa; padding:8px;"><span class="cardNumber"></span></td>
 </tr>
 </table>
+
+<div style="text-align:center; margin:12px 0 14px 0;">
+  <button class="btn" type="button" onclick="lookupPerson(document.getElementById('captainCardInput'))">
+    ΑΝΑΖΗΤΗΣΗ
+  </button>
+</div>
+
+</div>
   </div>
 
 <div id="crewSection" style="display:none;">
