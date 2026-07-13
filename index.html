@@ -971,6 +971,18 @@ if (raceTitleEl) raceTitleEl.textContent = data.raceTitle;
       const submitExpirationEl = document.getElementById("submitExpiration");
       if (submitExpirationEl) submitExpirationEl.textContent = data.submitExpiration;
     }
+
+    if (data.organizerBanner) {
+  CONFIG.ORGANIZER_BANNER = data.organizerBanner;
+
+  const organizerBannerBox = document.getElementById("organizerBannerBox");
+  const organizerBanner = document.getElementById("organizerBanner");
+
+  if (organizerBannerBox && organizerBanner) {
+    organizerBanner.src = data.organizerBanner;
+    organizerBannerBox.style.display = "block";
+  }
+}
     CONFIG.OSR_RULE = String(data.osrRule || CONFIG.OSR_RULE || "NONE").trim().toUpperCase();
     applyOsrRule();
   };
