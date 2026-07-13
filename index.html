@@ -916,6 +916,8 @@ body.jotform-open #formFrame {
 SUBMIT_EXPIRATION: "—",
 SETTINGS_ENDPOINT: "https://script.google.com/macros/s/AKfycbzjSJuN1YtHMyZkuV3XKeLJxT4ufe0xBhdVbjehFj9v_tzONu7eRAr3WEqBdLa3H0YJ/exec?action=settings&settings=189pf7AVsGF4cZl38-Y1jKIE-0h5z_R2xIPEXxPSD8q4",
    OSR_RULE: "NONE",
+   ORGANIZER_BANNER: "",
+SHOW_RACE_TITLE: "YES",
    
   BOAT_LOOKUP_URL: "https://script.google.com/macros/s/AKfycbzOp-9gQ9xMZtb7GxrLcWW_Nc5yrBu7KbmqDVYlI3s1GQ3wJhmOCfKyaoKgvTfttI2v/exec",
   PERSON_LOOKUP_URL: "https://script.google.com/macros/s/AKfycbw-zgZZeHRC6S5_f1xGkTwx-wXcFNq9z2O4cfhzAHSULQNDrwCp88vcvgU-617pgcg1/exec",
@@ -986,6 +988,22 @@ if (raceTitleEl) raceTitleEl.textContent = data.raceTitle;
     organizerBannerBox.style.display = "block";
   }
 }
+CONFIG.SHOW_RACE_TITLE = String(data.showRaceTitle || CONFIG.SHOW_RACE_TITLE || "YES").trim().toUpperCase();
+
+const introRaceTitle = document.getElementById("introRaceTitle");
+
+if (introRaceTitle) {
+  if (
+    CONFIG.SHOW_RACE_TITLE === "NO" ||
+    CONFIG.SHOW_RACE_TITLE === "OXI" ||
+    CONFIG.SHOW_RACE_TITLE === "ΟΧΙ"
+  ) {
+    introRaceTitle.style.display = "none";
+  } else {
+    introRaceTitle.style.display = "block";
+  }
+}
+    
     CONFIG.OSR_RULE = String(data.osrRule || CONFIG.OSR_RULE || "NONE").trim().toUpperCase();
     applyOsrRule();
   };
