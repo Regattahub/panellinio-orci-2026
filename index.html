@@ -720,17 +720,15 @@ body.jotform-open #formFrame {
   στον αγώνα ιστιοπλοΐας ανοικτής θάλασσας
 </div>
 
-<div id="introRaceTitle" style="font-size:38px; font-weight:900; color:#28308f; text-align:center; letter-spacing:2px; margin:20px 0 12px 0;">
-  Πανελλήνιο Κύπελλο ORCi 2026
-</div>
+<div id="introRaceTitle" style="font-size:38px; font-weight:900; color:#28308f; text-align:center; letter-spacing:2px; margin:20px 0 12px 0;"></div>
 
 <div style="text-align:center; margin:10px auto 16px auto;">
 <div id="introRaceDate" style="display:inline-block; background:rgba(255,255,255,0.65); padding:5px 10px; font-size:15px;">
-  Ημερομηνία διεξαγωγής του αγώνα: <span id="raceDate">ΘΑ ΑΝΑΚΟΙΝΩΘΕΙ</span>
+ Ημερομηνία διεξαγωγής του αγώνα: <span id="raceDate"></span>
 </div>
 
 <div id="introSubmitExpiration" style="margin-top:6px; font-size:14px; font-weight:bold; color:#143a63;">
-  Λήξη υποβολής συμμετοχών: <span id="submitExpiration">—</span>
+ Λήξη υποβολής συμμετοχών: <span id="submitExpiration"></span>
 </div>
 </div>
 
@@ -916,9 +914,9 @@ body.jotform-open #formFrame {
     // =========================================
 
  const CONFIG = {
-  EVENT_TITLE: "Πανελλήνιο Κύπελλο ORCi 2026",
-   RACE_DATE: "ΘΑ ΑΝΑΚΟΙΝΩΘΕΙ",
-SUBMIT_EXPIRATION: "—",
+  EVENT_TITLE: "",
+   RACE_DATE: "",
+SUBMIT_EXPIRATION: "",
 SETTINGS_ENDPOINT: "https://script.google.com/macros/s/AKfycbzjSJuN1YtHMyZkuV3XKeLJxT4ufe0xBhdVbjehFj9v_tzONu7eRAr3WEqBdLa3H0YJ/exec?action=settings&settings=189pf7AVsGF4cZl38-Y1jKIE-0h5z_R2xIPEXxPSD8q4",
  OSR_RULE: "NONE",
 ORGANIZER_BANNER: "",
@@ -966,11 +964,15 @@ function loadRaceSettingsFromSheet() {
   window.applyRaceSettings = function (data) {
     if (!data || data.success === false) return;
 
-    if (data.raceTitle) {
-      CONFIG.EVENT_TITLE = data.raceTitle;
-    const raceTitleEl = document.getElementById("eventTitle");
-if (raceTitleEl) raceTitleEl.textContent = data.raceTitle;
-    }
+  if (data.raceTitle) {
+  CONFIG.EVENT_TITLE = data.raceTitle;
+
+  const raceTitleEl = document.getElementById("eventTitle");
+  if (raceTitleEl) raceTitleEl.textContent = data.raceTitle;
+
+  const introRaceTitleEl = document.getElementById("introRaceTitle");
+  if (introRaceTitleEl) introRaceTitleEl.textContent = data.raceTitle;
+}
 
     if (data.raceDate) {
       CONFIG.RACE_DATE = data.raceDate;
