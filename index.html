@@ -918,8 +918,10 @@ body.jotform-open #formFrame {
    RACE_DATE: "",
 SUBMIT_EXPIRATION: "",
 SETTINGS_ENDPOINT: "https://script.google.com/macros/s/AKfycbzjSJuN1YtHMyZkuV3XKeLJxT4ufe0xBhdVbjehFj9v_tzONu7eRAr3WEqBdLa3H0YJ/exec?action=settings&settings=189pf7AVsGF4cZl38-Y1jKIE-0h5z_R2xIPEXxPSD8q4",
- OSR_RULE: "NONE",
+OSR_RULE: "NONE",
 ORGANIZER_BANNER: "",
+ORGANIZER_NAME: "",
+ORGANIZER_SHORT_NAME: "",
 ORGANIZER_EMAIL: "",
 ORGANIZER_TEL: "",
 SHOW_RACE_TITLE: "YES",
@@ -997,7 +999,9 @@ function loadRaceSettingsFromSheet() {
     organizerBannerBox.style.display = "block";
   }
 }
-    CONFIG.ORGANIZER_EMAIL = data.organizerEmail || "";
+CONFIG.ORGANIZER_NAME = data.organizerName || "";
+CONFIG.ORGANIZER_SHORT_NAME = data.organizerShortName || "";
+CONFIG.ORGANIZER_EMAIL = data.organizerEmail || "";
 CONFIG.ORGANIZER_TEL = data.organizerTel || "";
 CONFIG.SHOW_RACE_TITLE = String(data.showRaceTitle || CONFIG.SHOW_RACE_TITLE || "YES").trim().toUpperCase();
 
@@ -1243,6 +1247,8 @@ params.set("race_title", CONFIG.EVENT_TITLE || "");
 params.set("race_date", CONFIG.RACE_DATE || "");
 params.set("submit_expiration", CONFIG.SUBMIT_EXPIRATION || "");
 params.set("organizer_banner", CONFIG.ORGANIZER_BANNER || "");
+params.set("organizer_name", CONFIG.ORGANIZER_NAME || "");
+params.set("organizer_short_name", CONFIG.ORGANIZER_SHORT_NAME || "");
 params.set("organizer_email", CONFIG.ORGANIZER_EMAIL || "");
 params.set("organizer_tel", CONFIG.ORGANIZER_TEL || "");
   
