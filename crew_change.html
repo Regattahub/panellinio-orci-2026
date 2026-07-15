@@ -895,7 +895,7 @@ body.jotform-open #formFrame {
  const CONFIG = {
  EVENT_TITLE: "",
    SETTINGS_ENDPOINT: "https://script.google.com/macros/s/AKfycbzjSJuN1YtHMyZkuV3XKeLJxT4ufe0xBhdVbjehFj9v_tzONu7eRAr3WEqBdLa3H0YJ/exec?action=settings&settings=189pf7AVsGF4cZl38-Y1jKIE-0h5z_R2xIPEXxPSD8q4",
-BOAT_LOOKUP_URL: "https://script.google.com/macros/s/AKfycbxnnQs2_VeYfM2XtyMH0gl0SUz_IX4ul5CJ83dYUoOEI5S_TjAdyAR2t3f4ijHA2lEH7w/exec",
+BOAT_LOOKUP_URL: "https://script.google.com/macros/s/AKfycbz_DEBymT_KEkYxVPA3iIGlIkKoLUNDhowmpMl-q16_Hdn7dFP1kKQB5ccrkT51bxQj/exec",
   PERSON_LOOKUP_URL: "https://script.google.com/macros/s/AKfycbw-zgZZeHRC6S5_f1xGkTwx-wXcFNq9z2O4cfhzAHSULQNDrwCp88vcvgU-617pgcg1/exec",
 
   // ΠΡΟΣΟΧΗ:
@@ -1490,8 +1490,63 @@ function buildCrewTextForPdf() {
 
   return text.trimEnd();
 }
+function boatLookupJsonp(sailNumber) {
+  return new Promise(function (resolve, reject) {
+    const callbackName =
+      "__boatLookupCallback_" +
+      Date.now() +
+      "_" +
+      Math.random().toString(36).slice(2);
 
+    const script = document.createElement("script");
+    let timeoutId;
+
+    function cleanup() {
+      if (timeoutId) clearTimeout(timeoutId);
+
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+
+      try {
+        delete window[callbackName];
+      } catch (err) {
+        window[callbackName] = undefined;
+      }
+    }
+
+    window[callbackName] = function (data) {
+      cleanup();
+      resolve(data);
+    };
+
+    script.onerror = function () {
+      cleanup();
+      reject(new Error("Αποτυχία επικοινωνίας με το σύστημα αναζήτησης."));
+    };
+
+    const separator = BOAT_LOOKUP_URL.includes("?") ? "&" : "?";
+
+    script.src =
+      BOAT_LOOKUP_URL +
+      separator +
+      "id=" +
+      encodeURIComponent(sailNumber) +
+      "&callback=" +
+      encodeURIComponent(callbackName) +
+      "&_=" +
+      Date.now();
+
+    timeoutId = setTimeout(function () {
+      cleanup();
+      reject(new Error("Η αναζήτηση άργησε να απαντήσει."));
+    }, 15000);
+
+    document.body.appendChild(script);
+  });
+}
     async function searchBoat() {
+      
       const acceptTerms = document.getElementById("acceptTermsCheck");
 
 if (acceptTerms && !acceptTerms.checked) {
@@ -1511,8 +1566,7 @@ if (acceptTerms && !acceptTerms.checked) {
       hideResult();
 
       try {
-       const response = await fetch(BOAT_LOOKUP_URL + "?id=" + encodeURIComponent(sailNumber));
-        const json = await response.json();
+     const json = await boatLookupJsonp(sailNumber);
 
         if (!json.ok) {
           setStatus("Σφάλμα στο σύστημα αναζήτησης.", true, false, true);
