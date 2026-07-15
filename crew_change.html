@@ -718,12 +718,12 @@ body.jotform-open #formFrame {
 </div>
 
 <div id="introRaceTitle" style="font-size:38px; font-weight:900; color:#28308f; text-align:center; letter-spacing:2px; margin:20px 0 12px 0;">
-  ΕΠΙΔΑΥΡΟΣ 2026
+
 </div>
 
 <div style="text-align:center; margin:10px auto 16px auto;">
   <div id="introRaceDate" style="display:inline-block; background:rgba(255,255,255,0.65); padding:5px 10px; font-size:15px;">
-    Ημερομηνία διεξαγωγής του αγώνα: 13 & 14 ΙΟΥΝΙΟΥ 2026
+   
   </div>
 </div>
 
@@ -1073,8 +1073,20 @@ function loadRaceSettingsFromSheet() {
       if (eventTitleEl) {
         eventTitleEl.textContent = data.raceTitle;
       }
-
+const introRaceTitleEl = document.getElementById("introRaceTitle");
+if (introRaceTitleEl) {
+  introRaceTitleEl.textContent = data.raceTitle;
+}
+      
       document.title = "Αλλαγή Πληρώματος - " + data.raceTitle;
+      if (data.raceDate) {
+  const introRaceDateEl = document.getElementById("introRaceDate");
+
+  if (introRaceDateEl) {
+    introRaceDateEl.textContent =
+      "Ημερομηνία διεξαγωγής του αγώνα: " + data.raceDate;
+  }
+}
       const yearMatch = String(data.raceTitle).match(/\b20\d{2}\b/);
 
 if (yearMatch) {
