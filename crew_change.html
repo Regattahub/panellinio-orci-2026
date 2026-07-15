@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
- <title>Αλλαγή Πληρώματος - ΕΠΙΔΑΥΡΟΣ 2026</title>
+<title>Αλλαγή Πληρώματος</title>
 
   <style>
     * {
@@ -893,7 +893,8 @@ body.jotform-open #formFrame {
     // =========================================
 
  const CONFIG = {
-  EVENT_TITLE: "ΕΠΙΔΑΥΡΟΣ 2026",
+ EVENT_TITLE: "",
+   SETTINGS_ENDPOINT: "https://script.google.com/macros/s/AKfycbzjSJuN1YtHMyZkuV3XKeLJxT4ufe0xBhdVbjehFj9v_tzONu7eRAr3WEqBdLa3H0YJ/exec?action=settings&settings=189pf7AVsGF4cZl38-Y1jKIE-0h5z_R2xIPEXxPSD8q4",
 BOAT_LOOKUP_URL: "https://script.google.com/macros/s/AKfycbyVpyE12UzCE8gA2hqOMxchmtgpiG6SqppoFVf9fQc8iXKlUgCYac4bi4gK6aGyOAsHHA/exec",
   PERSON_LOOKUP_URL: "https://script.google.com/macros/s/AKfycbw-zgZZeHRC6S5_f1xGkTwx-wXcFNq9z2O4cfhzAHSULQNDrwCp88vcvgU-617pgcg1/exec",
 
@@ -905,7 +906,7 @@ BOAT_LOOKUP_URL: "https://script.google.com/macros/s/AKfycbyVpyE12UzCE8gA2hqOMxc
 
   EVENT_LOGO: "https://github.com/jsamartzis-png/logos/blob/main/logo_EntryFlow_removebg-preview.png?raw=true",
   EVENT_BACKGROUND: "background.jpg",
-  YEAR: "2026",
+ YEAR: "",
   INFO_PHONE: "210 4101 113"
 };
 
@@ -915,7 +916,7 @@ const JOTFORM_BASE_URL = CONFIG.JOTFORM_BASE_URL;
 const CREW_CHANGE_FORM_URL = CONFIG.CREW_CHANGE_FORM_URL;
 const EVENT_LOGO = CONFIG.EVENT_LOGO;
 const EVENT_BACKGROUND = CONFIG.EVENT_BACKGROUND;
-const EVENT_TITLE = CONFIG.EVENT_TITLE;
+let EVENT_TITLE = CONFIG.EVENT_TITLE;
 
 // Για δοκιμή το αφήνουμε ανοικτό.
 // Όταν θέλεις να κλείσει ο αγώνας, άλλαξε το σε false.
@@ -924,7 +925,9 @@ const CLOSED_MESSAGE = "Ο αγώνας έχει κλείσει και δεν δ
 
 // Χρησιμοποιείται όταν ο χρήστης πατήσει από τη Jotform
 // «Επιστροφή για αλλαγή πληρώματος».
-const STORAGE_KEY = "entryflow_epidavros_2026_crew_state";
+const STORAGE_KEY =
+  "entryFlow_crew_state_" +
+  window.location.pathname.replace(/[^a-zA-Z0-9]+/g, "_");
 
     const EVENT_NOTES = [
   "Με τη χρήση αυτής της εφαρμογής, μπορείτε εύκολα να υποβάλετε τα απαραίτητα έγγραφα και να ολοκληρώσετε την πληρωμή του παραβόλου (όλα σε ένα σημείο).",
@@ -1056,7 +1059,42 @@ wosr_member_2: "wosr_member_2"
         notesList.appendChild(li);
       });
     }
+function loadRaceSettingsFromSheet() {
+  if (!CONFIG.SETTINGS_ENDPOINT) return;
 
+  window.applyRaceSettings = function (data) {
+    if (!data || data.success === false) return;
+
+    if (data.raceTitle) {
+      CONFIG.EVENT_TITLE = data.raceTitle;
+      EVENT_TITLE = data.raceTitle;
+
+      const eventTitleEl = document.getElementById("eventTitle");
+      if (eventTitleEl) {
+        eventTitleEl.textContent = data.raceTitle;
+      }
+
+      document.title = "Αλλαγή Πληρώματος - " + data.raceTitle;
+      const yearMatch = String(data.raceTitle).match(/\b20\d{2}\b/);
+
+if (yearMatch) {
+  CONFIG.YEAR = yearMatch[0];
+
+  const noticeYearTextEl = document.getElementById("noticeYearText");
+  if (noticeYearTextEl) {
+    noticeYearTextEl.textContent =
+      "Για να συνεχίσετε θα πρέπει να έχετε πιστοποιητικό της Εθνικής Αρχής για το έτος " +
+      CONFIG.YEAR +
+      ".";
+  }
+}
+    }
+  };
+
+  const script = document.createElement("script");
+  script.src = CONFIG.SETTINGS_ENDPOINT + "&callback=applyRaceSettings";
+  document.body.appendChild(script);
+}
     function setStatus(message, isError = false, isLoading = false, shouldScroll = false) {
       if (isLoading) {
         statusBox.classList.add("loading");
@@ -1622,8 +1660,8 @@ window.scrollTo({ top: 0, behavior: "auto" });
       }
     }
 
-    setupHero();
-
+       setupHero();
+    loadRaceSettingsFromSheet();
     if (FORM_OPEN === false) {
       document.querySelector(".hero").style.display = "none";
       document.querySelector(".separator").style.display = "none";
