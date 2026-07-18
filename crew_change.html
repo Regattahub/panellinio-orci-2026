@@ -772,10 +772,26 @@ body.jotform-open #formFrame {
         </div>
       </div>
 
-      <div class="search-area">
-        <input type="text" id="sailNumber" placeholder="Αριθμός ιστίου" inputmode="numeric" />
-        <button class="btn" id="searchBtn" type="button">ΑΝΑΖΗΤΗΣΗ</button>
-      </div>
+    <div class="search-area">
+  <input
+    type="text"
+    id="sailNumber"
+    placeholder="Αριθμός ιστίου"
+    inputmode="numeric"
+  />
+
+  <input
+    type="text"
+    id="modificationCode"
+    placeholder="Κωδικός τροποποίησης"
+    autocomplete="off"
+    spellcheck="false"
+  />
+
+  <button class="btn" id="searchBtn" type="button">
+    ΑΝΑΖΗΤΗΣΗ
+  </button>
+</div>
 
       <div class="status" id="status"></div>
 
@@ -1490,7 +1506,7 @@ function buildCrewTextForPdf() {
 
   return text.trimEnd();
 }
-function boatLookupJsonp(sailNumber) {
+function boatLookupJsonp(sailNumber, modificationCode) {
   return new Promise(function (resolve, reject) {
     const callbackName =
       "__boatLookupCallback_" +
@@ -1530,9 +1546,11 @@ function boatLookupJsonp(sailNumber) {
     script.src =
       BOAT_LOOKUP_URL +
       separator +
-      "id=" +
-      encodeURIComponent(sailNumber) +
-      "&callback=" +
+     "id=" +
+encodeURIComponent(sailNumber) +
+"&modificationCode=" +
+encodeURIComponent(modificationCode) +
+"&callback=" +
       encodeURIComponent(callbackName) +
       "&_=" +
       Date.now();
@@ -1555,7 +1573,8 @@ if (acceptTerms && !acceptTerms.checked) {
   return;
 }
       const sailNumber = sailInput.value.trim();
-
+      const modificationCode =
+       document.getElementById("modificationCode").value.trim();
       if (!sailNumber) {
         setStatus("Παρακαλώ πληκτρολόγησε αριθμό ιστίου.", true, false, true);
         hideResult();
@@ -1566,7 +1585,7 @@ if (acceptTerms && !acceptTerms.checked) {
       hideResult();
 
       try {
-     const json = await boatLookupJsonp(sailNumber);
+    const json = await boatLookupJsonp(sailNumber, modificationCode);
 
         if (!json.ok) {
           setStatus("Σφάλμα στο σύστημα αναζήτησης.", true, false, true);
