@@ -1801,7 +1801,171 @@ function showCrewScreen() {
   }
 
   const data = lastFoundData || {};
-  const crewMembers = Array.isArray(data.crew_members) ? data.crew_members : [];
+function normalizeCrewList(list) {
+  if (!Array.isArray(list)) {
+    return [];
+  }
+
+  return list
+    .map(item => ({
+      name: String(
+        (item && (
+          item.name ||
+          item.full_name ||
+          item.fullName
+        )) || ""
+      ).trim(),
+
+      card: String(
+        (item && (
+          item.card ||
+          item.athlete_card ||
+          item.athleteCard
+        )) || ""
+      ).trim(),
+
+      club: String(
+        (item && item.club) || ""
+      ).trim()
+    }))
+    .filter(member =>
+      member.name ||
+      member.card ||
+      member.club
+    );
+}
+
+
+function parseCrewText(rawValue) {
+  if (!rawValue) {
+    return [];
+  }
+
+  /*
+   * Αν τα δεδομένα έχουν ήδη επιστραφεί
+   * ως κανονικός πίνακας.
+   */
+  if (Array.isArray(rawValue)) {
+    return normalizeCrewList(rawValue);
+  }
+
+  const text = String(rawValue)
+    .replace(/\r/g, "")
+    .trim();
+
+  if (!text) {
+    return [];
+  }
+
+  /*
+   * Πρώτα δοκιμάζουμε μήπως το περιεχόμενο
+   * είναι αποθηκευμένο ως JSON.
+   */
+  try {
+    const parsed = JSON.parse(text);
+
+    if (Array.isArray(parsed)) {
+      return normalizeCrewList(parsed);
+    }
+  } catch (error) {
+    /*
+     * Δεν είναι JSON.
+     * Συνεχίζουμε με ανάγνωση του πίνακα
+     * της "Προεπισκόπησης Πληρώματος".
+     */
+  }
+
+  const crew = [];
+
+  const lines = text
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => {
+      if (!line) {
+        return false;
+      }
+
+      /*
+       * Αγνοούμε την επικεφαλίδα.
+       */
+      if (/^Α\/Α(?:\s|$)/i.test(line)) {
+        return false;
+      }
+
+      /*
+       * Αγνοούμε τη διαχωριστική γραμμή.
+       */
+      if (/^[\s─—\-_=]+$/u.test(line)) {
+        return false;
+      }
+
+      return true;
+    });
+
+  lines.forEach(line => {
+    /*
+     * Αναμενόμενη μορφή:
+     *
+     * 1   ΟΝΟΜΑΤΕΠΩΝΥΜΟ   43167   ΟΜΙΛΟΣ
+     */
+    const match = line.match(
+      /^\s*\d+\s+(.+?)\s+(\d+)\s+(.+?)\s*$/u
+    );
+
+    if (!match) {
+      return;
+    }
+
+    crew.push({
+      name: match[1].trim(),
+      card: match[2].trim(),
+      club: match[3].trim()
+    });
+  });
+
+  return crew;
+}
+
+
+function getCrewMembers(data) {
+  /*
+   * Πρώτη επιλογή:
+   * έτοιμος πίνακας crew_members.
+   */
+  const directMembers = normalizeCrewList(
+    data.crew_members
+  );
+
+  if (directMembers.length) {
+    return directMembers;
+  }
+
+  /*
+   * Έπειτα δοκιμάζουμε, με αυτή τη σειρά:
+   *
+   * 1. Πλήρωμα μετά από προηγούμενη αλλαγή.
+   * 2. Πλήρωμα πριν από αλλαγή.
+   * 3. Προεπισκόπηση Πληρώματος από τη στήλη L.
+   */
+  const sources = [
+    data.crew_json_after,
+    data.crew_json_before,
+    data.crew_text
+  ];
+
+  for (const source of sources) {
+    const members = parseCrewText(source);
+
+    if (members.length) {
+      return members;
+    }
+  }
+
+  return [];
+}
+
+
+const crewMembers = getCrewMembers(data);
 
   function esc(v) {
     return String(v || "")
