@@ -1618,7 +1618,19 @@ if (acceptTerms && !acceptTerms.checked) {
         hideResult();
         return;
       }
+if (!modificationCode) {
+  setStatus(
+    "Παρακαλώ πληκτρολόγησε τον Κωδικό Τροποποίησης.",
+    true,
+    false,
+    true
+  );
 
+  document.getElementById("modificationCode").focus();
+  hideResult();
+  return;
+}
+      
       setStatus("Γίνεται αναζήτηση...", false, true, true);
       hideResult();
 
