@@ -1076,6 +1076,36 @@ wosr_member_2: "wosr_member_2"
       });
     }
 function loadRaceSettingsFromSheet() {
+    // Άμεση αρχική εμφάνιση μέχρι να φορτωθούν οι ΡΥΘΜΙΣΕΙΣ
+  const fallbackRaceTitle = "Πανελλήνιο Κύπελλο ORCi 2026";
+  const fallbackRaceDate = "9 έως 12 Σεπτεμβρίου 2026";
+  const fallbackRaceYear = "2026";
+
+  const eventTitleEl = document.getElementById("eventTitle");
+  if (eventTitleEl) {
+    eventTitleEl.textContent = fallbackRaceTitle;
+  }
+
+  const introRaceTitleEl = document.getElementById("introRaceTitle");
+  if (introRaceTitleEl) {
+    introRaceTitleEl.textContent = fallbackRaceTitle;
+  }
+
+  const introRaceDateEl = document.getElementById("introRaceDate");
+  if (introRaceDateEl) {
+    introRaceDateEl.textContent =
+      "Ημερομηνία διεξαγωγής του αγώνα: " + fallbackRaceDate;
+  }
+
+  const noticeYearTextEl = document.getElementById("noticeYearText");
+  if (noticeYearTextEl) {
+    noticeYearTextEl.textContent =
+      "Για να συνεχίσετε θα πρέπει να έχετε πιστοποιητικό της Εθνικής Αρχής για το έτος " +
+      fallbackRaceYear +
+      ".";
+  }
+
+  document.title = "Αλλαγή Πληρώματος - " + fallbackRaceTitle;
   if (!CONFIG.SETTINGS_ENDPOINT) return;
 
   window.applyRaceSettings = function (data) {
