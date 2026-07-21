@@ -1078,14 +1078,13 @@ wosr_member_2: "wosr_member_2"
 function loadRaceSettingsFromSheet() {
     // Άμεση αρχική εμφάνιση μέχρι να φορτωθούν οι ΡΥΘΜΙΣΕΙΣ
 const fallbackRaceTitle =
-  CONFIG.EVENT_TITLE || "Αλλαγή Πληρώματος";
+  "Πανελλήνιο Κύπελλο ORCi 2026";
 
 const fallbackRaceDate =
-  CONFIG.RACE_DATE || "";
+  "9 έως 12 Σεπτεμβρίου 2026";
 
 const fallbackRaceYear =
-  CONFIG.YEAR || "";
-
+  "2026";
   const eventTitleEl = document.getElementById("eventTitle");
   if (eventTitleEl) {
     eventTitleEl.textContent = fallbackRaceTitle;
