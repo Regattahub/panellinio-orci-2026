@@ -1642,10 +1642,28 @@ if (!modificationCode) {
           return;
         }
 
-        if (!json.found) {
-          setStatus("Δεν βρέθηκαν στοιχεία για αυτόν τον αριθμό ιστίου.", true, false, true);
-          return;
-        }
+      if (!json.found) {
+  if (json.invalidModificationCode) {
+    setStatus(
+      "Ο Κωδικός Τροποποίησης δεν είναι σωστός. Παρακαλώ ελέγξτε τον κωδικό και δοκιμάστε ξανά.",
+      true,
+      false,
+      true
+    );
+
+    document.getElementById("modificationCode").focus();
+    return;
+  }
+
+  setStatus(
+    "Δεν βρέθηκαν στοιχεία για αυτόν τον αριθμό ιστίου.",
+    true,
+    false,
+    true
+  );
+
+  return;
+}
 
       lastFoundData = json.data || {};
 console.log("DATA ΠΟΥ ΗΡΘΑΝ:", lastFoundData);
