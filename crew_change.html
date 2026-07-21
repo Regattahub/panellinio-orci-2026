@@ -1076,231 +1076,60 @@ wosr_member_2: "wosr_member_2"
       });
     }
 function loadRaceSettingsFromSheet() {
-  /*
-   * Εφαρμόζει τις ρυθμίσεις του αγώνα στη σελίδα.
-   * Επιστρέφει true όταν βρέθηκαν και εφαρμόστηκαν έγκυρα δεδομένα.
-   */
-  function applySettingsToPage(data) {
-    if (!data || data.success === false) {
-      return false;
-    }
+  if (!CONFIG.SETTINGS_ENDPOINT) return;
 
-    const raceTitle = String(
-      data.raceTitle || CONFIG.EVENT_TITLE || ""
-    ).trim();
+  window.applyRaceSettings = function (data) {
+    if (!data || data.success === false) return;
 
-    const raceDate = String(
-      data.raceDate || CONFIG.RACE_DATE || ""
-    ).trim();
-
-    if (raceTitle) {
-      CONFIG.EVENT_TITLE = raceTitle;
-      EVENT_TITLE = raceTitle;
+    if (data.raceTitle) {
+      CONFIG.EVENT_TITLE = data.raceTitle;
+      EVENT_TITLE = data.raceTitle;
 
       const eventTitleEl = document.getElementById("eventTitle");
       if (eventTitleEl) {
-        eventTitleEl.textContent = raceTitle;
+        eventTitleEl.textContent = data.raceTitle;
       }
 
       const introRaceTitleEl = document.getElementById("introRaceTitle");
       if (introRaceTitleEl) {
-        introRaceTitleEl.textContent = raceTitle;
+        introRaceTitleEl.textContent = data.raceTitle;
       }
 
-      document.title = "Αλλαγή Πληρώματος - " + raceTitle;
-    }
+      document.title = "Αλλαγή Πληρώματος - " + data.raceTitle;
 
-    if (raceDate) {
-      CONFIG.RACE_DATE = raceDate;
+      if (data.raceDate) {
+        const introRaceDateEl = document.getElementById("introRaceDate");
 
-      const introRaceDateEl = document.getElementById("introRaceDate");
-      if (introRaceDateEl) {
-        introRaceDateEl.textContent =
-          "Ημερομηνία διεξαγωγής του αγώνα: " + raceDate;
-      }
-    }
-
-    const yearMatch = raceTitle.match(/\b20\d{2}\b/);
-    const raceYear = yearMatch
-      ? yearMatch[0]
-      : String(CONFIG.YEAR || "2026");
-
-    if (raceYear) {
-      CONFIG.YEAR = raceYear;
-
-      const noticeYearTextEl =
-        document.getElementById("noticeYearText");
-
-      if (noticeYearTextEl) {
-        noticeYearTextEl.textContent =
-          "Για να συνεχίσετε θα πρέπει να έχετε πιστοποιητικό " +
-          "της Εθνικής Αρχής για το έτος " +
-          raceYear +
-          ".";
-      }
-    }
-
-    return Boolean(raceTitle);
-  }
-
-  /*
-   * Μετατρέπει είτε καθαρό JSON είτε απάντηση JSONP
-   * applyRaceSettings({...}) σε αντικείμενο JavaScript.
-   */
-  function parseSettingsResponse(responseText) {
-    const text = String(responseText || "").trim();
-
-    if (!text) {
-      throw new Error("Η απάντηση των ρυθμίσεων είναι κενή.");
-    }
-
-    try {
-      return JSON.parse(text);
-    } catch (jsonError) {
-      const jsonpMatch = text.match(
-        /^[A-Za-z_$][\w$]*\s*\(\s*([\s\S]*)\s*\)\s*;?\s*$/
-      );
-
-      if (!jsonpMatch) {
-        throw new Error(
-          "Η απάντηση των ρυθμίσεων δεν είναι έγκυρο JSON ή JSONP."
-        );
+        if (introRaceDateEl) {
+          introRaceDateEl.textContent =
+            "Ημερομηνία διεξαγωγής του αγώνα: " + data.raceDate;
+        }
       }
 
-      return JSON.parse(jsonpMatch[1]);
-    }
-  }
+      const yearMatch = String(data.raceTitle).match(/\b20\d{2}\b/);
 
-  /*
-   * Ασφαλείς εφεδρικές ρυθμίσεις.
-   * Εμφανίζονται αμέσως, ακόμη και αν ο Chrome
-   * μπλοκάρει την εξωτερική απάντηση.
-   */
-  const fallbackSettings = {
-    success: true,
-    raceTitle:
-      CONFIG.EVENT_TITLE ||
-      "Πανελλήνιο Κύπελλο ORCi 2026",
-    raceDate:
-      CONFIG.RACE_DATE ||
-      "9 έως 12 Σεπτεμβρίου 2026"
-  };
+      if (yearMatch) {
+        CONFIG.YEAR = yearMatch[0];
 
-  applySettingsToPage(fallbackSettings);
+        const noticeYearTextEl =
+          document.getElementById("noticeYearText");
 
-  if (!CONFIG.SETTINGS_ENDPOINT) {
-    console.warn(
-      "Δεν έχει οριστεί CONFIG.SETTINGS_ENDPOINT. " +
-      "Χρησιμοποιούνται οι εφεδρικές ρυθμίσεις."
-    );
-    return;
-  }
-
-  /*
-   * Η παγκόσμια συνάρτηση παραμένει διαθέσιμη
-   * για την εφεδρική μέθοδο JSONP.
-   */
-  window.applyRaceSettings = function (data) {
-    const applied = applySettingsToPage(data);
-
-    if (!applied) {
-      console.warn(
-        "Η απάντηση JSONP δεν περιείχε έγκυρες ρυθμίσεις."
-      );
+        if (noticeYearTextEl) {
+          noticeYearTextEl.textContent =
+            "Για να συνεχίσετε θα πρέπει να έχετε πιστοποιητικό της Εθνικής Αρχής για το έτος " +
+            CONFIG.YEAR +
+            ".";
+        }
+      }
     }
   };
 
-  /*
-   * Αφαιρούμε τυχόν παλιό callback από το URL,
-   * ώστε να δοκιμάσουμε πρώτα καθαρό fetch.
-   */
-  const cleanEndpoint = String(CONFIG.SETTINGS_ENDPOINT)
-    .replace(/([?&])callback=[^&]*/gi, "$1")
-    .replace(/[?&]$/, "");
+  const script = document.createElement("script");
+  script.src =
+    CONFIG.SETTINGS_ENDPOINT +
+    "&callback=applyRaceSettings";
 
-  const separator = cleanEndpoint.includes("?") ? "&" : "?";
-
-  const fetchUrl =
-    cleanEndpoint +
-    separator +
-    "_settingsCache=" +
-    Date.now();
-
-  /*
-   * Εφεδρική φόρτωση με JSONP.
-   */
-  function tryJsonp() {
-    const previousScript =
-      document.getElementById("raceSettingsJsonp");
-
-    if (previousScript) {
-      previousScript.remove();
-    }
-
-    const script = document.createElement("script");
-
-    script.id = "raceSettingsJsonp";
-    script.async = true;
-
-    script.src =
-      cleanEndpoint +
-      separator +
-      "callback=applyRaceSettings" +
-      "&_settingsCache=" +
-      Date.now();
-
-    script.onerror = function () {
-      console.warn(
-        "Η φόρτωση των ρυθμίσεων μέσω JSONP απέτυχε. " +
-        "Παραμένουν ενεργές οι εφεδρικές ρυθμίσεις."
-      );
-    };
-
-    document.head.appendChild(script);
-  }
-
-  /*
-   * Πρώτη επιλογή: fetch.
-   * Αν αποτύχει λόγω CORS ή ανακατεύθυνσης,
-   * δοκιμάζεται αυτόματα το JSONP.
-   */
-  fetch(fetchUrl, {
-    method: "GET",
-    cache: "no-store",
-    redirect: "follow"
-  })
-    .then(function (response) {
-      if (!response.ok) {
-        throw new Error(
-          "HTTP " + response.status + " " + response.statusText
-        );
-      }
-
-      return response.text();
-    })
-    .then(function (responseText) {
-      const settingsData =
-        parseSettingsResponse(responseText);
-
-      if (!applySettingsToPage(settingsData)) {
-        throw new Error(
-          "Δεν βρέθηκαν έγκυρες ρυθμίσεις στην απάντηση."
-        );
-      }
-
-      console.log(
-        "Οι ρυθμίσεις του αγώνα φορτώθηκαν επιτυχώς."
-      );
-    })
-    .catch(function (error) {
-      console.warn(
-        "Το fetch των ρυθμίσεων απέτυχε. " +
-        "Δοκιμάζεται JSONP:",
-        error
-      );
-
-      tryJsonp();
-    });
+  document.body.appendChild(script);
 }
     function setStatus(message, isError = false, isLoading = false, shouldScroll = false) {
       if (isLoading) {
