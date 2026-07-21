@@ -962,9 +962,14 @@ function applyOsrRule() {
     
 function loadRaceSettingsFromSheet() {
     // Άμεση αρχική εμφάνιση μέχρι να φορτωθούν οι ΡΥΘΜΙΣΕΙΣ
-  const fallbackRaceTitle = "Πανελλήνιο Κύπελλο ORCi 2026";
-  const fallbackRaceDate = "9 έως 12 Σεπτεμβρίου 2026";
-  const fallbackSubmitExpiration = "3η Σεπτεμβρίου 2026";
+const fallbackRaceTitle =
+  CONFIG.EVENT_TITLE || "Φόρμα Συμμετοχής Αγώνα";
+
+const fallbackRaceDate =
+  CONFIG.RACE_DATE || "";
+
+const fallbackSubmitExpiration =
+  CONFIG.SUBMIT_EXPIRATION || "";
 
   CONFIG.EVENT_TITLE = fallbackRaceTitle;
   CONFIG.RACE_DATE = fallbackRaceDate;
