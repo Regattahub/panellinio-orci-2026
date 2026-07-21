@@ -961,6 +961,39 @@ function applyOsrRule() {
 }
     
 function loadRaceSettingsFromSheet() {
+    // Άμεση αρχική εμφάνιση μέχρι να φορτωθούν οι ΡΥΘΜΙΣΕΙΣ
+  const fallbackRaceTitle = "Πανελλήνιο Κύπελλο ORCi 2026";
+  const fallbackRaceDate = "9 έως 12 Σεπτεμβρίου 2026";
+  const fallbackSubmitExpiration = "3η Σεπτεμβρίου 2026";
+
+  CONFIG.EVENT_TITLE = fallbackRaceTitle;
+  CONFIG.RACE_DATE = fallbackRaceDate;
+  CONFIG.SUBMIT_EXPIRATION = fallbackSubmitExpiration;
+
+  const raceTitleEl = document.getElementById("eventTitle");
+  if (raceTitleEl) {
+    raceTitleEl.textContent = fallbackRaceTitle;
+  }
+
+  const introRaceTitleEl = document.getElementById("introRaceTitle");
+  if (introRaceTitleEl) {
+    introRaceTitleEl.textContent = fallbackRaceTitle;
+  }
+
+  const raceDateEl = document.getElementById("raceDate");
+  if (raceDateEl) {
+    raceDateEl.textContent = fallbackRaceDate;
+  }
+
+  const submitExpirationEl =
+    document.getElementById("submitExpiration");
+
+  if (submitExpirationEl) {
+    submitExpirationEl.textContent =
+      fallbackSubmitExpiration;
+  }
+
+  document.title = fallbackRaceTitle;
   if (!CONFIG.SETTINGS_ENDPOINT) return;
 
   window.applyRaceSettings = function (data) {
