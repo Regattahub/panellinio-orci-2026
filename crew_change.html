@@ -1077,9 +1077,14 @@ wosr_member_2: "wosr_member_2"
     }
 function loadRaceSettingsFromSheet() {
     // Άμεση αρχική εμφάνιση μέχρι να φορτωθούν οι ΡΥΘΜΙΣΕΙΣ
-  const fallbackRaceTitle = "Πανελλήνιο Κύπελλο ORCi 2026";
-  const fallbackRaceDate = "9 έως 12 Σεπτεμβρίου 2026";
-  const fallbackRaceYear = "2026";
+const fallbackRaceTitle =
+  CONFIG.EVENT_TITLE || "Αλλαγή Πληρώματος";
+
+const fallbackRaceDate =
+  CONFIG.RACE_DATE || "";
+
+const fallbackRaceYear =
+  CONFIG.YEAR || "";
 
   const eventTitleEl = document.getElementById("eventTitle");
   if (eventTitleEl) {
