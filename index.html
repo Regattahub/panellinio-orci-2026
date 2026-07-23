@@ -822,8 +822,74 @@ body.jotform-open #formFrame {
   <td style="border:1px solid #bfb6aa; padding:8px;"><span class="cardNumber"></span></td>
 </tr>
 </table>
+<div id="addSecondCaptainBox" style="text-align:center; margin:18px 0 4px 0;">
+  <button
+    id="addSecondCaptainBtn"
+    class="btn secondary"
+    type="button"
+    onclick="showSecondCaptain()"
+  >
+    + ΠΡΟΣΘΗΚΗ ΔΕΥΤΕΡΟΥ ΚΥΒΕΡΝΗΤΗ
+  </button>
+  <div
+  id="secondCaptainSection"
+  style="display:none; margin-top:22px; padding-top:20px; border-top:1px solid #c9c0b4;"
+>
+  <strong>ΚΥΒΕΡΝΗΤΗΣ 2</strong><br>
 
-</div>
+  <label style="font-weight:bold;">
+    Συμπληρώστε τον αριθμό αθλητικού δελτίου δεύτερου κυβερνήτη
+  </label><br>
+
+  <div style="display:flex; justify-content:center; align-items:center; gap:8px; margin-top:8px;">
+    <input
+      id="secondCaptainCardInput"
+      type="text"
+      inputmode="numeric"
+      placeholder="Αρ. δελτίου"
+      style="height:48px; width:220px; max-width:100%; font-size:18px; font-weight:700; text-align:center; color:#143a63; background:#fffdf2; border:2px solid #0d5e92; border-radius:7px; box-shadow:0 0 0 3px rgba(13,94,146,0.10); outline:none;"
+    >
+  </div>
+
+  <div style="text-align:center; margin:12px 0 14px 0;">
+    <button
+      class="btn"
+      type="button"
+      onclick="lookupPerson(document.getElementById('secondCaptainCardInput'))"
+    >
+      ΑΝΑΖΗΤΗΣΗ
+    </button>
+  </div>
+
+  <div class="personStatus" style="font-weight:bold; margin-bottom:6px;"></div>
+
+  <table style="width:90%; max-width:620px; margin:8px auto 0 auto; border-collapse:collapse; font-size:16px;">
+    <tr>
+      <td style="border:1px solid #bfb6aa; padding:8px; font-weight:bold; width:120px; background:#f1f4ef;">Όνομα</td>
+      <td style="border:1px solid #bfb6aa; padding:8px;"><span class="name"></span></td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #bfb6aa; padding:8px; font-weight:bold; background:#f1f4ef;">Όμιλος</td>
+      <td style="border:1px solid #bfb6aa; padding:8px;"><span class="club"></span></td>
+    </tr>
+    <tr>
+      <td style="border:1px solid #bfb6aa; padding:8px; font-weight:bold; background:#f1f4ef;">Αρ. Δελτίου</td>
+      <td style="border:1px solid #bfb6aa; padding:8px;"><span class="cardNumber"></span></td>
+    </tr>
+  </table>
+
+  <div style="text-align:center; margin:16px 0 4px 0;">
+    <button
+      class="btn secondary"
+      type="button"
+      onclick="hideSecondCaptain()"
+    >
+      ΑΦΑΙΡΕΣΗ ΔΕΥΤΕΡΟΥ ΚΥΒΕΡΝΗΤΗ
+    </button>
+  </div>
+    
+  </div>
+  </div>
   </div>
 
 <div id="crewSection" style="display:none; width:100%; max-width:720px; box-sizing:border-box; margin:28px auto 0 auto; padding:24px 26px; background:#ffffff; border:1px solid #c9c0b4; border-radius:6px;">
@@ -1766,6 +1832,38 @@ formWrap.style.display = "none";
     btn.style.borderColor = "";
     btn.style.color = "";
     btn.style.fontWeight = "";
+  }
+}
+    function showSecondCaptain() {
+  const section = document.getElementById("secondCaptainSection");
+  const buttonBox = document.getElementById("addSecondCaptainBox");
+  const input = document.getElementById("secondCaptainCardInput");
+
+  if (section) section.style.display = "block";
+  if (buttonBox) buttonBox.style.display = "none";
+  if (input) input.focus();
+}
+
+function hideSecondCaptain() {
+  const section = document.getElementById("secondCaptainSection");
+  const buttonBox = document.getElementById("addSecondCaptainBox");
+  const input = document.getElementById("secondCaptainCardInput");
+
+  if (section) section.style.display = "none";
+  if (buttonBox) buttonBox.style.display = "block";
+
+  if (input) input.value = "";
+
+  if (section) {
+    const nameEl = section.querySelector(".name");
+    const clubEl = section.querySelector(".club");
+    const cardEl = section.querySelector(".cardNumber");
+    const statusEl = section.querySelector(".personStatus");
+
+    if (nameEl) nameEl.innerText = "";
+    if (clubEl) clubEl.innerText = "";
+    if (cardEl) cardEl.innerText = "";
+    if (statusEl) statusEl.innerText = "";
   }
 }
 async function lookupPerson(input) {
