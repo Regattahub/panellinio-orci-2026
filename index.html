@@ -800,7 +800,11 @@ body.jotform-open #formFrame {
 <input id="captainCardInput" type="text" inputmode="numeric" placeholder="Αρ. δελτίου" style="height:48px; width:220px; max-width:100%; font-size:18px; font-weight:700; text-align:center; color:#143a63; background:#fffdf2; border:2px solid #0d5e92; border-radius:7px; box-shadow:0 0 0 3px rgba(13,94,146,0.10); outline:none;">
 
 </div>
-
+<div style="text-align:center; margin:12px 0 14px 0;">
+  <button class="btn" type="button" onclick="lookupPerson(document.getElementById('captainCardInput'))">
+    ΑΝΑΖΗΤΗΣΗ
+  </button>
+</div>
 <div style="height:14px;"></div>
 
 <div class="personStatus" style="font-weight:bold; margin-bottom:6px;"></div>
@@ -818,12 +822,6 @@ body.jotform-open #formFrame {
   <td style="border:1px solid #bfb6aa; padding:8px;"><span class="cardNumber"></span></td>
 </tr>
 </table>
-
-<div style="text-align:center; margin:12px 0 14px 0;">
-  <button class="btn" type="button" onclick="lookupPerson(document.getElementById('captainCardInput'))">
-    ΑΝΑΖΗΤΗΣΗ
-  </button>
-</div>
 
 </div>
   </div>
