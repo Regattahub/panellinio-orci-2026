@@ -1378,6 +1378,30 @@ params.set("organizer_tel", CONFIG.ORGANIZER_TEL || "");
   params.set(fieldNames.captain_name, document.querySelector("#crewScreen .name")?.innerText || "");
   params.set(fieldNames.captain_club, document.querySelector("#crewScreen .club")?.innerText || "");
   params.set(fieldNames.captain_card, document.querySelector("#crewScreen input")?.value || "");
+  const secondCaptainSection = document.getElementById("secondCaptainSection");
+  const secondCaptainIsActive =
+  secondCaptainSection && secondCaptainSection.style.display !== "none";
+
+params.set(
+  "second_captain_name",
+  secondCaptainIsActive
+    ? secondCaptainSection.querySelector(".name")?.innerText || ""
+    : ""
+);
+
+params.set(
+  "second_captain_card",
+  secondCaptainIsActive
+    ? document.getElementById("secondCaptainCardInput")?.value || ""
+    : ""
+);
+
+params.set(
+  "second_captain_club",
+  secondCaptainIsActive
+    ? secondCaptainSection.querySelector(".club")?.innerText || ""
+    : ""
+);
  const crewTextForPreview = buildCrewTextForPdf();
  params.set(fieldNames.crew_text, crewTextForPreview);
 
