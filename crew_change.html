@@ -3118,7 +3118,11 @@ function getFinalCrewCandidates() {
   addCandidate(
     data.captain_name,
     data.captain_card,
-    data.captain_club || data.club,
+  data.captain_club ||
+data.skipper_club ||
+data.skipperClub ||
+data["ΟΜΙΛΟΣ ΚΥΒΕΡΝΗΤΗ"] ||
+"",
     "Κυβερνήτης Α"
   );
 
