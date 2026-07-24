@@ -2084,18 +2084,48 @@ const crewMembers = getCrewMembers(data);
         </tr>
       `;
 
-  const removeRowsHtml = crewMembers.length
-    ? crewMembers.map((m, index) => `
-        <label style="display:block; margin:7px 0; padding:8px; border:1px solid #d0c8bd; background:#fff;">
-         <input type="checkbox" class="removeCrewCheck" data-card="${esc(m.card)}" data-name="${esc(m.name)}" data-club="${esc(m.club)}" style="width:18px; height:18px; margin-right:8px; vertical-align:middle;">
-          ${index + 1}. ${esc(m.name)} — ${esc(m.card)} — ${esc(m.club)}
-        </label>
-      `).join("")
-    : `
-        <div style="color:#b00020; font-weight:bold;">
-          Δεν υπάρχει διαθέσιμο πλήρωμα για επιλογή αφαίρεσης.
-        </div>
-      `;
+const removableParticipants = [];
+
+if (data.second_captain_name) {
+  removableParticipants.push({
+    role: "second_captain",
+    name: data.second_captain_name || "",
+    card: data.second_captain_card || "",
+    club: data.second_captain_club || "",
+    label: "Κυβερνήτης Β"
+  });
+}
+
+crewMembers.forEach((member) => {
+  removableParticipants.push({
+    role: "crew",
+    name: member.name || "",
+    card: member.card || "",
+    club: member.club || "",
+    label: "Μέλος πληρώματος"
+  });
+});
+
+const removeRowsHtml = removableParticipants.length
+  ? removableParticipants.map((m, index) => `
+      <label style="display:block; margin:7px 0; padding:8px; border:1px solid #d0c8bd; background:#fff;">
+        <input
+          type="checkbox"
+          class="removeCrewCheck"
+          data-role="${esc(m.role)}"
+          data-card="${esc(m.card)}"
+          data-name="${esc(m.name)}"
+          data-club="${esc(m.club)}"
+          style="width:20px; height:20px; margin-right:8px; vertical-align:middle;"
+        >
+        ${index + 1}. ${esc(m.name)} — ${esc(m.label)} — ${esc(m.card)} — ${esc(m.club)}
+      </label>
+    `).join("")
+  : `
+      <div style="color:#b00020; font-weight:bold;">
+        Δεν υπάρχει διαθέσιμο συμμετέχον μέλος για επιλογή αφαίρεσης.
+      </div>
+    `;
 
   crewScreen.innerHTML = `
     <h3 style="text-align:center; color:#0d5e92; font-size:26px; margin-bottom:18px;">
