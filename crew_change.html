@@ -2096,7 +2096,32 @@ const crewMembers = getCrewMembers(data);
           Δεν υπάρχει διαθέσιμο πλήρωμα για επιλογή αφαίρεσης.
         </div>
       `;
+const replaceParticipantOptions = [];
 
+if (data.second_captain_name) {
+  replaceParticipantOptions.push({
+    value: "second_captain",
+    label: `${data.second_captain_name} — Κυβερνήτης Β`
+  });
+}
+
+crewMembers.forEach((member, index) => {
+  replaceParticipantOptions.push({
+    value: `crew_${index}`,
+    label: `${member.name} — Μέλος πληρώματος`
+  });
+});
+
+const replaceParticipantOptionsHtml =
+  replaceParticipantOptions.length
+    ? replaceParticipantOptions
+        .map(item => `
+          <option value="${esc(item.value)}">
+            ${esc(item.label)}
+          </option>
+        `)
+        .join("")
+    : "";
   crewScreen.innerHTML = `
     <h3 style="text-align:center; color:#0d5e92; font-size:26px; margin-bottom:18px;">
       ΣΤΟΙΧΕΙΑ ΑΡΧΙΚΗΣ ΥΠΟΒΟΛΗΣ
@@ -2236,10 +2261,33 @@ ${data.second_captain_name ? `
         Θα αφαιρέσετε μέλος/μέλη από το πλήρωμα;
       </label>
       <label style="display:block; font-size:16px; font-weight:bold; margin:10px 0;">
+  <input
+    type="checkbox"
+    id="willReplaceParticipant"
+    style="width:20px; height:20px; margin-right:8px; vertical-align:middle;"
+  >
+  Θα αντικαταστήσετε συμμετέχον μέλος;
+</label>
+      <label style="display:block; font-size:16px; font-weight:bold; margin:10px 0;">
   <input type="checkbox" id="changeWosrCrew" style="width:20px; height:20px; margin-right:8px; vertical-align:middle;">
   Θέλετε να αλλάξετε τα δηλωμένα μέλη WS OSR 6.05.3;
 </label>
+<div
+  id="replaceParticipantBox"
+  style="display:none; margin:12px 0 16px 0; padding:14px; border:1px solid #bfb6aa; background:#f8fbff;"
+>
+  <div style="font-weight:bold; text-align:center; margin-bottom:10px;">
+    ΕΠΙΛΕΞΤΕ ΤΟ ΣΥΜΜΕΤΕΧΟΝ ΜΕΛΟΣ ΠΟΥ ΘΑ ΑΝΤΙΚΑΤΑΣΤΑΘΕΙ
+  </div>
 
+  <select
+    id="replaceParticipantSelect"
+    style="width:100%; height:42px; font-size:15px;"
+  >
+    <option value="">Επιλέξτε συμμετέχον μέλος</option>
+    ${replaceParticipantOptionsHtml}
+  </select>
+</div>
 
 
  <div id="addCrewChangeBox" style="display:none; border:1px solid #bfb6aa; background:#fff; padding:14px; margin-bottom:16px; text-align:left;">
@@ -2368,7 +2416,18 @@ document.getElementById("changeWosrCrew").addEventListener("change", function ()
   document.getElementById("wosrChangeBox").style.display = this.checked ? "block" : "none";
   refreshWosrSelectors();
 });
-  
+ document.getElementById("willReplaceParticipant").addEventListener("change", function () {
+  const box = document.getElementById("replaceParticipantBox");
+  const select = document.getElementById("replaceParticipantSelect");
+
+  if (box) {
+    box.style.display = this.checked ? "block" : "none";
+  }
+
+  if (!this.checked && select) {
+    select.value = "";
+  }
+}); 
   document.querySelectorAll(".removeCrewCheck").forEach((check) => {
   check.addEventListener("change", function () {
     const label = this.closest("label");
