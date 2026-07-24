@@ -1382,9 +1382,25 @@ params.set(fieldNames.crew_json, JSON.stringify(
   }))
 ));
 
- return CREW_CHANGE_FORM_URL + "?" + Array.from(params.entries())
-    .map(([key, value]) => encodeURIComponent(key) + "=" + encodeURIComponent(value))
-    .join("&");
+const submissionEditUrl = String(
+  data.submission_edit_url ||
+  data.submissionEditUrl ||
+  data["Submission Edit URL"] ||
+  ""
+).trim();
+
+if (!submissionEditUrl) {
+  alert("Δεν βρέθηκε το Edit Link της αρχικής υποβολής.");
+  throw new Error("Missing Submission Edit URL");
+}
+
+const separator = submissionEditUrl.includes("?") ? "&" : "?";
+
+return submissionEditUrl + separator + Array.from(params.entries())
+  .map(([key, value]) =>
+    encodeURIComponent(key) + "=" + encodeURIComponent(value)
+  )
+  .join("&");
 }
 
 function shortClubName(club) {
