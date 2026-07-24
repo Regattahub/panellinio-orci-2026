@@ -1222,6 +1222,33 @@ function formatForJotformNumber(v) {
 function getCrewPdfRows() {
   const rows = [];
 
+  /*
+   * Υπάρχον πλήρωμα που δεν έχει επιλεγεί για αφαίρεση.
+   * Δεν βάζουμε εδώ τον Κυβερνήτη Β, γιατί προστίθεται
+   * ξεχωριστά στις λίστες WS OSR.
+   */
+  document.querySelectorAll(".removeCrewCheck").forEach((check) => {
+    const role = String(check.dataset.role || "crew").trim();
+
+    if (check.checked) return;
+    if (role !== "crew") return;
+
+    const name = String(check.dataset.name || "").trim();
+    const card = String(check.dataset.card || "").trim();
+    const club = String(check.dataset.club || "").trim();
+
+    if (name || card) {
+      rows.push({
+        name,
+        card,
+        club
+      });
+    }
+  });
+
+  /*
+   * Νέα μέλη που έχουν αναζητηθεί και ελεγχθεί επιτυχώς.
+   */
   document.querySelectorAll("#addedCrewTable tbody tr").forEach((tr) => {
     if (tr.dataset.cardStatus !== "valid") return;
 
@@ -1230,11 +1257,17 @@ function getCrewPdfRows() {
     const club = String(tr.querySelector(".club")?.innerText || "").trim();
 
     if (name && card) {
-      rows.push({
-        name,
-        card,
-        club
-      });
+      const alreadyExists = rows.some((member) =>
+        member.card === card
+      );
+
+      if (!alreadyExists) {
+        rows.push({
+          name,
+          card,
+          club
+        });
+      }
     }
   });
 
