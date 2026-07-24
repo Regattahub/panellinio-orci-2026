@@ -2447,7 +2447,8 @@ document.getElementById("changeWosrCrew").addEventListener("change", function ()
   refreshWosrSelectors();
 });
 
-  document.querySelectorAll(".removeCrewCheck").forEach((check) => {
+
+document.querySelectorAll(".removeCrewCheck").forEach((check) => {
   check.addEventListener("change", function () {
     const label = this.closest("label");
 
@@ -2464,12 +2465,11 @@ document.getElementById("changeWosrCrew").addEventListener("change", function ()
       if (!badge) {
         badge = document.createElement("span");
         badge.className = "removeBadge";
-        badge.innerText = "  — Επιλέχθηκε για αφαίρεση";
+        badge.innerText = " — Επιλέχθηκε για αφαίρεση";
         badge.style.color = "#b00020";
         badge.style.fontWeight = "bold";
         label.appendChild(badge);
       }
-
     } else {
       label.style.background = "#fff";
       label.style.borderColor = "#d0c8bd";
@@ -2480,14 +2480,52 @@ document.getElementById("changeWosrCrew").addEventListener("change", function ()
         badge.remove();
       }
     }
-  });
-});
- document.querySelectorAll(".removeCrewCheck").forEach((check) => {
-  check.addEventListener("change", function () {
-    updateWosrRequirement();
+
+    const changeWosrCheckbox =
+      document.getElementById("changeWosrCrew");
+
+    const wosrBox =
+      document.getElementById("wosrChangeBox");
+
+    const wosrNote =
+      document.getElementById("wosrRequiredNote");
+
+    const wosrChangeRequired =
+      mustChangeWosrMembers();
+
+    if (wosrChangeRequired) {
+      if (changeWosrCheckbox) {
+        changeWosrCheckbox.checked = true;
+      }
+
+      if (wosrBox) {
+        wosrBox.style.display = "block";
+      }
+
+      if (wosrNote) {
+        wosrNote.style.display = "block";
+      }
+
+      if (this.checked) {
+        alert(
+          "Το μέλος που επιλέξατε για αφαίρεση είχε δηλωθεί ως μέλος WS OSR 6.05.3. Πρέπει να δηλώσετε εκ νέου δύο μέλη WS OSR."
+        );
+      }
+    } else {
+      if (wosrNote) {
+        wosrNote.style.display = "none";
+      }
+
+      if (wosrBox && changeWosrCheckbox) {
+        wosrBox.style.display =
+          changeWosrCheckbox.checked ? "block" : "none";
+      }
+    }
+
     refreshWosrSelectors();
   });
-}); 
+
+
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
