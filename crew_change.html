@@ -3048,41 +3048,80 @@ window.location.href = jotformUrl;
 
 function getFinalCrewCandidates() {
   const data = lastFoundData || {};
-  const originalCrew = Array.isArray(data.crew_members) ? data.crew_members : [];
 
   const removedCards = new Set(
     Array.from(document.querySelectorAll(".removeCrewCheck"))
       .filter(check => check.checked)
       .map(check => String(check.dataset.card || "").trim())
+      .filter(Boolean)
   );
 
-  const finalCrew = originalCrew
-    .filter(m => !removedCards.has(String(m.card || "").trim()))
-    .map(m => ({
-      name: String(m.name || "").trim(),
-      card: String(m.card || "").trim(),
-      club: String(m.club || "").trim()
-    }));
-const captainCard = String(data.captain_card || "").trim();
+  const finalCrew = [];
 
-if (data.captain_name || data.captain_card) {
-  finalCrew.unshift({
-    name: String(data.captain_name || "").trim(),
-    card: captainCard,
-    club: String(data.club || "").trim()
+  function addCandidate(name, card, club, role) {
+    name = String(name || "").trim();
+    card = String(card || "").trim();
+    club = String(club || "").trim();
+
+    if (!name && !card) return;
+    if (card && removedCards.has(card)) return;
+
+    const alreadyExists = finalCrew.some(member =>
+      (card && member.card === card) ||
+      (!card && name && member.name === name)
+    );
+
+    if (alreadyExists) return;
+
+    finalCrew.push({
+      name,
+      card,
+      club,
+      role: role || ""
+    });
+  }
+
+  // Κυβερνήτης Α
+  addCandidate(
+    data.captain_name,
+    data.captain_card,
+    data.captain_club || data.club,
+    "Κυβερνήτης Α"
+  );
+
+  // Κυβερνήτης Β
+  addCandidate(
+    data.second_captain_name,
+    data.second_captain_card,
+    data.second_captain_club,
+    "Κυβερνήτης Β"
+  );
+
+  // Υπάρχον τελικό πλήρωμα
+  const crewRows = getCrewPdfRows();
+
+  crewRows.forEach(member => {
+    addCandidate(
+      member.name,
+      member.card,
+      member.club,
+      "Μέλος πληρώματος"
+    );
   });
-}
+
+  // Νέα μέλη που έχουν ελεγχθεί και προστεθεί
   document.querySelectorAll("#addedCrewTable tbody tr").forEach(row => {
     if (row.dataset.cardStatus !== "valid") return;
 
-    finalCrew.push({
-      name: String(row.querySelector(".name")?.innerText || "").trim(),
-      card: String(row.querySelector("input")?.value || "").trim(),
-      club: String(row.querySelector(".club")?.innerText || "").trim()
-    });
+    addCandidate(
+      row.querySelector(".name")?.innerText,
+      row.querySelector("input")?.value,
+      row.querySelector(".club")?.innerText,
+      "Νέο μέλος πληρώματος"
+    );
   });
 
-  return finalCrew.filter(m => m.name || m.card);
+  return finalCrew;
 }
 
 function refreshWosrSelectors() {
