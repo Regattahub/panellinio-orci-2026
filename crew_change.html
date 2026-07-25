@@ -3238,7 +3238,7 @@ function updateWosrRequirement() {
   refreshWosrSelectors();
 }
     
-    function validateCrewChangeBeforeSubmit() {
+  async function validateCrewChangeBeforeSubmit() {
   const willAdd = document.getElementById("willAddCrew")?.checked || false;
   const willRemove = document.getElementById("willRemoveCrew")?.checked || false;
 
@@ -3310,12 +3310,63 @@ if (changeWosr) {
   }
 }
       
-  alert("Ο έλεγχος ολοκληρώθηκε σωστά. Στο επόμενο βήμα θα ανοίγει η φόρμα καταχώρησης αλλαγής πληρώματος.");
-  
-      const jotformUrl = buildPrefillUrl(lastFoundData || {});
-window.location.href = jotformUrl;
-}
+   const finalCrew = getFinalCrewCandidates();
 
+  try {
+    setStatus(
+      "Αποθηκεύονται οι αλλαγές πληρώματος...",
+      false,
+      true,
+      true
+    );
+
+    const response = await updateCrewThroughAppsScript(
+      lastFoundData,
+      finalCrew
+    );
+
+    const editUrl = String(
+      response.submissionEditUrl ||
+      lastFoundData.submission_edit_url ||
+      lastFoundData.submissionEditUrl ||
+      ""
+    ).trim();
+
+    if (!editUrl) {
+      throw new Error(
+        "Η ενημέρωση έγινε, αλλά δεν βρέθηκε το Edit URL."
+      );
+    }
+
+    setStatus(
+      "Οι αλλαγές πληρώματος αποθηκεύτηκαν επιτυχώς.",
+      false,
+      false,
+      true
+    );
+
+    window.location.href = editUrl;
+
+  } catch (error) {
+    console.error(
+      "Σφάλμα αποθήκευσης αλλαγής πληρώματος:",
+      error
+    );
+
+    setStatus(
+      error.message ||
+      "Δεν ήταν δυνατή η αποθήκευση των αλλαγών.",
+      true,
+      false,
+      true
+    );
+
+    alert(
+      "Η αποθήκευση δεν ολοκληρώθηκε.\n\n" +
+      (error.message || "Άγνωστο σφάλμα.")
+    );
+  }
+}
 function getFinalCrewCandidates() {
   const data = lastFoundData || {};
 
