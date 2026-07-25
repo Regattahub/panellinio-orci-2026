@@ -1813,6 +1813,38 @@ setStatus("Η αναζήτηση ολοκληρώθηκε.");
     params.set("modificationCode", modificationCode);
     params.set("submissionId", submissionId);
     params.set("crewJson", JSON.stringify(crewRows));
+
+    const changeWosr =
+  document.getElementById("changeWosrCrew")?.checked || false;
+
+let wosrMember1 = String(
+  data.wosr_member_1 || ""
+).trim();
+
+let wosrMember2 = String(
+  data.wosr_member_2 || ""
+).trim();
+
+if (changeWosr) {
+  const rawWosr1 = String(
+    document.getElementById("wosrMember1Select")?.value || ""
+  ).trim();
+
+  const rawWosr2 = String(
+    document.getElementById("wosrMember2Select")?.value || ""
+  ).trim();
+
+  wosrMember1 = String(
+    rawWosr1.split("||")[1] || ""
+  ).trim();
+
+  wosrMember2 = String(
+    rawWosr2.split("||")[1] || ""
+  ).trim();
+}
+
+params.set("wosrMember1", wosrMember1);
+params.set("wosrMember2", wosrMember2);
     params.set(
       "changeText",
       "Ενημέρωση πληρώματος μέσω της εφαρμογής αλλαγής πληρώματος."
