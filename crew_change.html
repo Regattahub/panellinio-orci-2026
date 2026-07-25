@@ -1728,52 +1728,251 @@ setStatus("Η αναζήτηση ολοκληρώθηκε.");
       }
     }
 
-    function continueToForm() {
-      const acceptTerms = document.getElementById("acceptTermsCheck");
+    function updateCrewThroughAppsScript(data, crewRows) {
+  return new Promise((resolve, reject) => {
+    const sailNumber = String(
+      data.sail_number ||
+      data.sailNumber ||
+      document.getElementById("sailNumber")?.value ||
+      ""
+    ).trim();
 
-if (acceptTerms && !acceptTerms.checked) {
-  alert("Παρακαλούμε αποδεχθείτε την Πολιτική Απορρήτου και τους Όρους Χρήσης για να συνεχίσετε.");
-  acceptTerms.scrollIntoView({ behavior: "smooth", block: "center" });
-  return;
-}
-      if (!lastFoundData) {
-        setStatus("Δεν υπάρχουν στοιχεία για συνέχεια.", true, false, true);
-        return;
-      }
+    const modificationCode = String(
+      document.getElementById("modificationCode")?.value || ""
+    ).trim();
 
-      const crewRowsForCheck = getCrewPdfRows();
+    const submissionId = String(
+      data.submission_id ||
+      data.submissionId ||
+      data["Submission ID"] ||
+      ""
+    ).trim();
 
-      if (crewRowsForCheck.length === 0) {
-        alert("Δεν έχει προστεθεί κανένα μέλος πληρώματος.\n\nΠάτησε πρώτα '+ Προσθήκη μέλους', βάλε αριθμό δελτίου και πάτησε 🔍.");
-        return;
-      }
-const wosr1 = document.getElementById("wosrMember1")?.value || "";
-const wosr2 = document.getElementById("wosrMember2")?.value || "";
-
-if (!wosr1 || !wosr2) {
-  alert("Παρακαλώ επιλέξτε δύο εξοικειωμένα μέλη πληρώματος WS OSR 6.05.3.");
-  return;
-}
-
-if (wosr1 === wosr2) {
-  alert("Παρακαλώ επιλέξτε δύο διαφορετικά μέλη πληρώματος.");
-  return;
-}
-      saveEntryState();
-
-      const formUrl = buildPrefillUrl(lastFoundData);
-      console.log("ΠΛΗΡΩΜΑ ΠΟΥ ΘΑ ΣΤΑΛΕΙ:", crewRowsForCheck);
-      console.log("JOTFORM PREFILL URL:", formUrl);
-//alert(buildCrewTextForPdf());
-
- formFrame.src = formUrl;
-formWrap.style.display = "block";
-
-document.body.classList.add("jotform-open");
-document.documentElement.classList.add("jotform-open-html");
-
-window.scrollTo({ top: 0, behavior: "auto" });
+    if (!sailNumber) {
+      reject(new Error("Δεν βρέθηκε ο αριθμός ιστίου."));
+      return;
     }
+
+    if (!modificationCode) {
+      reject(new Error("Δεν βρέθηκε ο κωδικός τροποποίησης."));
+      return;
+    }
+
+    if (!submissionId) {
+      reject(new Error("Δεν βρέθηκε το Submission ID."));
+      return;
+    }
+
+    const callbackName =
+      "crewUpdateCallback_" +
+      Date.now() +
+      "_" +
+      Math.floor(Math.random() * 100000);
+
+    const script = document.createElement("script");
+
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error("Η ενημέρωση άργησε να απαντήσει."));
+    }, 30000);
+
+    function cleanup() {
+      clearTimeout(timeout);
+
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+
+      try {
+        delete window[callbackName];
+      } catch (error) {
+        window[callbackName] = undefined;
+      }
+    }
+
+    window[callbackName] = function (response) {
+      cleanup();
+
+      if (!response || response.ok !== true) {
+        reject(
+          new Error(
+            response?.error ||
+            "Η ενημέρωση του πληρώματος απέτυχε."
+          )
+        );
+        return;
+      }
+
+      resolve(response);
+    };
+
+    const params = new URLSearchParams();
+
+    params.set("action", "updateCrew");
+    params.set("id", sailNumber);
+    params.set("modificationCode", modificationCode);
+    params.set("submissionId", submissionId);
+    params.set("crewJson", JSON.stringify(crewRows));
+    params.set(
+      "changeText",
+      "Ενημέρωση πληρώματος μέσω της εφαρμογής αλλαγής πληρώματος."
+    );
+    params.set("callback", callbackName);
+
+    script.src =
+      BOAT_LOOKUP_URL +
+      "?" +
+      params.toString();
+
+    script.onerror = function () {
+      cleanup();
+      reject(
+        new Error(
+          "Δεν ήταν δυνατή η επικοινωνία με το Apps Script."
+        )
+      );
+    };
+
+    document.body.appendChild(script);
+  });
+}
+async function continueToForm() {
+  const acceptTerms =
+    document.getElementById("acceptTermsCheck");
+
+  if (acceptTerms && !acceptTerms.checked) {
+    alert(
+      "Παρακαλούμε αποδεχθείτε την Πολιτική Απορρήτου και τους Όρους Χρήσης για να συνεχίσετε."
+    );
+
+    acceptTerms.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+
+    return;
+  }
+
+  if (!lastFoundData) {
+    setStatus(
+      "Δεν υπάρχουν στοιχεία για συνέχεια.",
+      true,
+      false,
+      true
+    );
+    return;
+  }
+
+  const crewRowsForCheck = getCrewPdfRows();
+
+  if (crewRowsForCheck.length === 0) {
+    alert(
+      "Δεν έχει προστεθεί κανένα μέλος πληρώματος.\n\n" +
+      "Πάτησε πρώτα '+ Προσθήκη μέλους', βάλε αριθμό δελτίου και πάτησε 🔍."
+    );
+    return;
+  }
+
+  const wosr1 =
+    document.getElementById("wosrMember1")?.value || "";
+
+  const wosr2 =
+    document.getElementById("wosrMember2")?.value || "";
+
+  if (!wosr1 || !wosr2) {
+    alert(
+      "Παρακαλώ επιλέξτε δύο εξοικειωμένα μέλη πληρώματος WS OSR 6.05.3."
+    );
+    return;
+  }
+
+  if (wosr1 === wosr2) {
+    alert(
+      "Παρακαλώ επιλέξτε δύο διαφορετικά μέλη πληρώματος."
+    );
+    return;
+  }
+
+  const continueButton =
+    document.getElementById("continueToJotformBtn");
+
+  try {
+    if (continueButton) {
+      continueButton.disabled = true;
+      continueButton.textContent = "ΑΠΟΘΗΚΕΥΣΗ...";
+    }
+
+    setStatus(
+      "Αποθηκεύονται οι αλλαγές πληρώματος...",
+      false,
+      true,
+      true
+    );
+
+    saveEntryState();
+
+    const response = await updateCrewThroughAppsScript(
+      lastFoundData,
+      crewRowsForCheck
+    );
+
+    const editUrl = String(
+      response.submissionEditUrl ||
+      lastFoundData.submission_edit_url ||
+      lastFoundData.submissionEditUrl ||
+      ""
+    ).trim();
+
+    if (!editUrl) {
+      throw new Error(
+        "Η ενημέρωση έγινε, αλλά δεν βρέθηκε το Edit URL."
+      );
+    }
+
+    setStatus(
+      "Οι αλλαγές αποθηκεύτηκαν επιτυχώς.",
+      false,
+      false,
+      true
+    );
+
+    formFrame.src = editUrl;
+    formWrap.style.display = "block";
+
+    document.body.classList.add("jotform-open");
+    document.documentElement.classList.add(
+      "jotform-open-html"
+    );
+
+    window.scrollTo({
+      top: 0,
+      behavior: "auto"
+    });
+
+  } catch (error) {
+    console.error("Σφάλμα ενημέρωσης πληρώματος:", error);
+
+    setStatus(
+      error.message ||
+      "Δεν ήταν δυνατή η αποθήκευση των αλλαγών.",
+      true,
+      false,
+      true
+    );
+
+    alert(
+      "Η αποθήκευση δεν ολοκληρώθηκε.\n\n" +
+      (error.message || "Άγνωστο σφάλμα.")
+    );
+
+  } finally {
+    if (continueButton) {
+      continueButton.disabled = false;
+      continueButton.textContent =
+        "ΣΥΝΕΧΕΙΑ ΣΤΗ ΦΟΡΜΑ";
+    }
+  }
+}
     function resetSearch() {
       localStorage.removeItem(STORAGE_KEY);
       sailInput.value = "";
