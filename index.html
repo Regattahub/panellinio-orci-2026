@@ -1429,16 +1429,20 @@ params.set(fieldNames.crew_pdf_club, crewPdfClub.join("\n"));
 const wosr1Value = document.getElementById("wosrMember1")?.value || "";
 const wosr2Value = document.getElementById("wosrMember2")?.value || "";
 const captainState = getCaptainState();
+const secondCaptainState = getSecondCaptainState();
 
 function getWosrName(value) {
   if (value === "captain") {
     return captainState.name || "";
   }
 
+  if (value === "secondCaptain") {
+    return secondCaptainState.name || "";
+  }
+
   const index = parseInt(value, 10) - 1;
   return crewPdfRows[index]?.name || "";
 }
-
 params.set(fieldNames.wosr_member_1, getWosrName(wosr1Value));
 params.set(fieldNames.wosr_member_2, getWosrName(wosr2Value));
   
@@ -1890,7 +1894,9 @@ function hideSecondCaptain() {
     if (cardEl) cardEl.innerText = "";
     if (statusEl) statusEl.innerText = "";
   }
+  refreshWosrSelectors();
 }
+      
 async function lookupPerson(input) {
   const id = input.value.trim();
   if (!id) return;
@@ -1947,7 +1953,7 @@ if (crewSectionEl && input.closest("#crewScreen")) {
    statusEl.innerText = "✔ Βρέθηκε";
 statusEl.style.color = "#2e7d32";
     }
-
+refreshWosrSelectors();
   } catch (err) {
     console.error(err);
 
@@ -2164,6 +2170,40 @@ select2.innerHTML = '<option value="">Επιλέξτε ένα μέλος</option
 
   select1.value = previous1;
   select2.value = previous2;
+}
+
+    function getSecondCaptainState() {
+  const section =
+    document.getElementById("secondCaptainSection");
+
+  const isActive =
+    section &&
+    section.style.display !== "none";
+
+  if (!isActive) {
+    return {
+      card: "",
+      name: "",
+      club: ""
+    };
+  }
+
+  return {
+    card:
+      document
+        .getElementById("secondCaptainCardInput")
+        ?.value || "",
+
+    name:
+      section
+        .querySelector(".name")
+        ?.innerText || "",
+
+    club:
+      section
+        .querySelector(".club")
+        ?.innerText || ""
+  };
 }
     
 function renumberCrewRows() {
