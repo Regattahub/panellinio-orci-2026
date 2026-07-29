@@ -2132,13 +2132,18 @@ if (rule === "NONE" || rule === "NO" || rule === "ΟΧΙ" || rule === "") {
 select1.innerHTML = '<option value="">Επιλέξτε ένα μέλος</option>';
 select2.innerHTML = '<option value="">Επιλέξτε ένα μέλος</option>';
 
-  const rows = getCrewPdfRows();
-  const captain = getCaptainState();
+const rows = getCrewPdfRows();
+const captain = getCaptainState();
+const secondCaptain = getSecondCaptainState();
 
-  if (!captain.name && rows.length === 0) {
-    box.style.display = "none";
-    return;
-  }
+if (
+  !captain.name &&
+  !secondCaptain.name &&
+  rows.length === 0
+) {
+  box.style.display = "none";
+  return;
+}
 
   box.style.display = "block";
 
@@ -2155,16 +2160,45 @@ select2.innerHTML = '<option value="">Επιλέξτε ένα μέλος</option
     select2.appendChild(option2);
   }
 
+  // Κυβερνήτης Α
   if (captain.name && captain.card) {
     addOptionToBoth(
       "captain",
-      "ΚΥΒ - " + captain.name + " (" + captain.card + ")"
+      "ΚΥΒ Α - " +
+        captain.name +
+        " (" +
+        captain.card +
+        ")"
     );
   }
 
+  // Κυβερνήτης Β
+  if (secondCaptain.name) {
+    const secondCaptainLabel =
+      "ΚΥΒ Β - " +
+      secondCaptain.name +
+      (secondCaptain.card
+        ? " (" + secondCaptain.card + ")"
+        : "");
+
+    addOptionToBoth(
+      "second_captain",
+      secondCaptainLabel
+    );
+  }
+
+  // Υπόλοιπο πλήρωμα
   rows.forEach((row, index) => {
     const aa = index + 1;
-    const label = aa + " - " + (row.name || "") + " (" + (row.card || "") + ")";
+
+    const label =
+      aa +
+      " - " +
+      (row.name || "") +
+      " (" +
+      (row.card || "") +
+      ")";
+
     addOptionToBoth(String(aa), label);
   });
 
@@ -2172,37 +2206,31 @@ select2.innerHTML = '<option value="">Επιλέξτε ένα μέλος</option
   select2.value = previous2;
 }
 
-    function getSecondCaptainState() {
-  const section =
-    document.getElementById("secondCaptainSection");
+function getSecondCaptainState() {
+  const cardInput =
+    document.getElementById("secondCaptainCardInput");
 
-  const isActive =
-    section &&
-    section.style.display !== "none";
+  const searchButton =
+    document.querySelector(
+      'button[onclick*="secondCaptainCardInput"]'
+    );
 
-  if (!isActive) {
-    return {
-      card: "",
-      name: "",
-      club: ""
-    };
-  }
+  const box =
+    searchButton?.parentElement?.parentElement ||
+    cardInput?.parentElement;
 
   return {
-    card:
-      document
-        .getElementById("secondCaptainCardInput")
-        ?.value || "",
+    name: String(
+      box?.querySelector(".name")?.textContent || ""
+    ).trim(),
 
-    name:
-      section
-        .querySelector(".name")
-        ?.innerText || "",
+    card: String(
+      cardInput?.value || ""
+    ).trim(),
 
-    club:
-      section
-        .querySelector(".club")
-        ?.innerText || ""
+    club: String(
+      box?.querySelector(".club")?.textContent || ""
+    ).trim()
   };
 }
     
