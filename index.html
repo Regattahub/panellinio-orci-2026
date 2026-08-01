@@ -1183,6 +1183,7 @@ const NOTICE_INFO_TEXT =
       orc_class_check: "orc_class_check",
       captain_name: "typeA93",
 captain_club: "input33",
+captain_club_short: "captain_club_short",      
 captain_card: "input55",
 crew_text: "input514",
 crew_1_name: "crew1_name",
@@ -1377,6 +1378,12 @@ params.set("organizer_tel", CONFIG.ORGANIZER_TEL || "");
 
   params.set(fieldNames.captain_name, document.querySelector("#crewScreen .name")?.innerText || "");
   params.set(fieldNames.captain_club, document.querySelector("#crewScreen .club")?.innerText || "");
+  params.set(
+  fieldNames.captain_club_short,
+  shortClubName(
+    document.querySelector("#crewScreen .club")?.innerText || ""
+  )
+);
   params.set(fieldNames.captain_card, document.querySelector("#crewScreen input")?.value || "");
   const secondCaptainSection = document.getElementById("secondCaptainSection");
   const secondCaptainIsActive =
