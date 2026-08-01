@@ -1489,15 +1489,64 @@ params.set(fieldNames.crew_json, JSON.stringify(
 }
 
 function shortClubName(club) {
-  return String(club || "")
+  const text = String(club || "")
     .replace(/\+/g, " ")
-    .replace(/ΝΑΥΤΑΘΛΗΤΙΚΟΣ ΟΜΙΛΟΣ/g, "Ν.Ο.")
-    .replace(/ΝΑΥΤΙΚΟΣ ΟΜΙΛΟΣ/g, "Ν.Ο.")
-    .replace(/ΙΣΤΙΟΠΛΟΪΚΟΣ ΟΜΙΛΟΣ/g, "Ι.Ο.")
-    .replace(/ΙΣΤΙΟΠΛΟΙΚΟΣ ΟΜΙΛΟΣ/g, "Ι.Ο.")
-    .replace(/ΑΘΛΗΤΙΚΟΣ ΝΑΥΤΙΚΟΣ ΟΜΙΛΟΣ/g, "Α.Ν.Ο.")
-    .replace(/ΝΑΥΤΙΚΟΣ ΑΘΛΗΤΙΚΟΣ ΟΜΙΛΟΣ/g, "Ν.Α.Ο.")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .replace(/\s+/g, " ")
     .trim();
+
+  const cleanAcronym = value =>
+    value.replace(/[^A-ZΑ-Ω]/g, "");
+
+  const isAcronym = value => {
+    const trimmed = value.trim();
+    const cleaned = cleanAcronym(trimmed);
+
+    if (cleaned.length < 2 || cleaned.length > 10) {
+      return false;
+    }
+
+    return (
+      !/\s/.test(trimmed) ||
+      trimmed
+        .split(/\s+/)
+        .every(part => /^[A-ZΑ-Ω]\.?$/.test(part))
+    );
+  };
+
+  const parentheses = [...text.matchAll(/\(([^()]*)\)/g)];
+
+  for (const match of parentheses) {
+    if (isAcronym(match[1])) {
+      return cleanAcronym(match[1]);
+    }
+  }
+
+  const dashMatch = text.match(
+    /[-–—]\s*([A-ZΑ-Ω.]{2,20})\s*$/
+  );
+
+  if (dashMatch && isAcronym(dashMatch[1])) {
+    return cleanAcronym(dashMatch[1]);
+  }
+
+  if (isAcronym(text)) {
+    return cleanAcronym(text);
+  }
+
+  const words = text
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/[-–—]/g, " ")
+    .replace(/[^A-ZΑ-Ω]+/g, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  return words
+    .map(word => word.charAt(0))
+    .join("");
 }
 
 function cutForPdf(value, maxLength) {
