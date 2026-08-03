@@ -2886,14 +2886,16 @@ async function lookupAddedCrewMember(input) {
       statusEl.style.fontWeight = "bold";
     }
 
-  } catch (err) {
-    console.error(err);
+} catch (err) {
+  console.error(err);
 
-    tr.dataset.cardStatus = "error";
-    statusEl.innerText = "✖ ΣΦΑΛΜΑ";
-    statusEl.style.color = "#b00020";
-    statusEl.style.fontWeight = "bold";
-  }
+  tr.dataset.cardStatus = "error";
+  statusEl.innerText = "✖ ΣΦΑΛΜΑ";
+  statusEl.style.color = "#b00020";
+  statusEl.style.fontWeight = "bold";
+} finally {
+  refreshWosrSelectors();
+}
 }
 
 function deleteAddedCrewRow(btn) {
@@ -2906,6 +2908,7 @@ function deleteAddedCrewRow(btn) {
   }
 
   renumberAddedCrewRows();
+  refreshWosrSelectors();
 }
 
 function renumberAddedCrewRows() {
