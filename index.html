@@ -1727,6 +1727,14 @@ if (osrRequired) {
       console.log("JOTFORM PREFILL URL:", formUrl);
 //alert(buildCrewTextForPdf());
 
+ const openJotformDirectly =
+  window.matchMedia("(max-width: 1024px)").matches ||
+  /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+if (openJotformDirectly) {
+  window.location.assign(formUrl);
+  return;
+}     
  formFrame.src = formUrl;
 formWrap.style.display = "block";
 
