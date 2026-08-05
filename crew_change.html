@@ -697,7 +697,44 @@ body.jotform-open #formFrame {
   background: #fff !important;
   border-radius: 0 !important;
 }
-  </style>
+  /* ΟΘΟΝΗ ΑΝΑΜΟΝΗΣ ΜΕΧΡΙ ΝΑ ΑΝΟΙΞΕΙ Η JOTFORM */
+#jotformLoadingOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000000;
+  background: rgba(255,255,255,0.94);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+#jotformLoadingOverlay.is-visible {
+  display: flex;
+}
+
+#jotformLoadingOverlay .loading-card {
+  padding: 26px 30px;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.16);
+  color: #2f241d;
+  font-weight: 700;
+  font-size: 17px;
+}
+
+#jotformLoadingOverlay .loading-spinner {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px auto;
+  border: 6px solid rgba(13,94,146,0.18);
+  border-top-color: #0d5e92;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+
+</style>
 </head>
 <body>
   <div class="page">
@@ -900,6 +937,14 @@ body.jotform-open #formFrame {
       <div class="form-wrap" id="formWrap">
         <iframe id="formFrame" src="" title="Καταχώριση συμμετοχής"></iframe>
       </div>
+    </div>
+  </div>
+
+  <div id="jotformLoadingOverlay" role="status" aria-live="polite" aria-hidden="true">
+    <div class="loading-card">
+      <div class="loading-spinner"></div>
+      <div>Παρακαλούμε περιμένετε…</div>
+      <div style="font-size:14px; font-weight:500; margin-top:8px;">Ανοίγει η σελίδα καταχώρισης.</div>
     </div>
   </div>
 
@@ -1868,6 +1913,20 @@ params.set("wosrMember2", wosrMember2);
     document.body.appendChild(script);
   });
 }
+function showJotformLoading() {
+  const overlay = document.getElementById("jotformLoadingOverlay");
+  if (!overlay) return;
+  overlay.classList.add("is-visible");
+  overlay.setAttribute("aria-hidden", "false");
+}
+
+function hideJotformLoading() {
+  const overlay = document.getElementById("jotformLoadingOverlay");
+  if (!overlay) return;
+  overlay.classList.remove("is-visible");
+  overlay.setAttribute("aria-hidden", "true");
+}
+
 async function continueToForm() {
   const acceptTerms =
     document.getElementById("acceptTermsCheck");
@@ -2557,14 +2616,44 @@ ${data.second_captain_name ? `
   </div>
 
   <div style="font-size:14px; color:#5f5147; text-align:center; margin-bottom:12px;">
-    Συμπληρώστε τον αριθμό αθλητικού δελτίου κάθε νέου μέλους και πατήστε αναζήτηση.
+    Πατήστε <strong>+ ΠΡΟΣΘΗΚΗ ΝΕΟΥ ΜΕΛΟΥΣ</strong>, συμπληρώστε τον αριθμό αθλητικού δελτίου και πατήστε αναζήτηση.
+    Το μέλος θα προστεθεί στον πίνακα μόνο όταν το δελτίο βρεθεί και είναι ενεργό.
   </div>
 
-  <div id="addedCrewList"></div>
+  <div id="addedCrewEntryBox"
+       style="display:none; max-width:520px; margin:14px auto; padding:14px;
+              border:1px solid #bfb6aa; background:#fffdf2; border-radius:7px;">
+
+    <div style="display:flex; gap:8px; justify-content:center; align-items:center; flex-wrap:wrap;">
+      <input
+        id="addedCrewCardInput"
+        type="text"
+        inputmode="numeric"
+        placeholder="Αριθμός δελτίου"
+        style="width:180px; height:42px; font-size:17px; text-align:center;
+               border:2px solid #0d5e92; border-radius:6px;"
+      >
+
+      <button
+        class="btn"
+        type="button"
+        onclick="searchAndAddAddedCrewMember()"
+        style="min-width:150px;"
+      >
+        🔍 ΑΝΑΖΗΤΗΣΗ
+      </button>
+    </div>
+
+    <div id="addedCrewSearchStatus"
+         style="min-height:24px; margin-top:10px; font-weight:bold; text-align:center;">
+    </div>
+  </div>
+
+  <div id="addedCrewList" style="width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;"></div>
 
   <div style="text-align:center; margin-top:12px;">
-    <button class="btn secondary" type="button" onclick="addAddedCrewRow()">
-      + Προσθήκη νέου μέλους
+    <button class="btn secondary" type="button" onclick="showAddedCrewEntry()">
+      + ΠΡΟΣΘΗΚΗ ΝΕΟΥ ΜΕΛΟΥΣ
     </button>
   </div>
 </div>
@@ -2760,20 +2849,22 @@ document.querySelectorAll(".removeCrewCheck").forEach((check) => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-    function addAddedCrewRow() {
+    function ensureAddedCrewTable() {
   let table = document.getElementById("addedCrewTable");
 
   if (!table) {
-    document.getElementById("addedCrewList").innerHTML = `
-      <table id="addedCrewTable" style="width:100%; border-collapse:collapse; font-size:14px; margin-top:12px;">
+    const list = document.getElementById("addedCrewList");
+    if (!list) return null;
+
+    list.innerHTML = `
+      <table id="addedCrewTable"
+             style="width:100%; border-collapse:collapse; font-size:14px; margin-top:12px; table-layout:auto;">
         <thead>
           <tr style="background:#f1f4ef;">
-            <th style="border:1px solid #bfb6aa; padding:6px; width:45px;">Α/Α</th>
-            <th style="border:1px solid #bfb6aa; padding:6px; width:100px;">ΔΕΛΤΙΟ</th>
+            <th style="border:1px solid #bfb6aa; padding:6px; width:95px;">ΔΕΛΤΙΟ</th>
             <th style="border:1px solid #bfb6aa; padding:6px;">ΟΝΟΜΑ</th>
             <th style="border:1px solid #bfb6aa; padding:6px;">ΟΜΙΛΟΣ</th>
-            <th style="border:1px solid #bfb6aa; padding:6px; width:120px;">STATUS</th>
-            <th style="border:1px solid #bfb6aa; padding:6px; width:130px;">ΕΝΕΡΓΕΙΑ</th>
+            <th style="border:1px solid #bfb6aa; padding:4px; width:42px;"></th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -2783,140 +2874,171 @@ document.querySelectorAll(".removeCrewCheck").forEach((check) => {
     table = document.getElementById("addedCrewTable");
   }
 
-  const tbody = table.querySelector("tbody");
-  const tr = document.createElement("tr");
-
-  tr.dataset.cardStatus = "";
-  tr.dataset.checkedCard = "";
-
-  tr.innerHTML = `
-    <td class="rowNo" style="border:1px solid #bfb6aa; padding:6px; text-align:center;"></td>
-
-    <td style="border:1px solid #bfb6aa; padding:6px; text-align:center;">
-      <input type="text" placeholder="19012" style="width:80px; height:34px; font-size:15px; text-align:center;">
-    </td>
-
-    <td style="border:1px solid #bfb6aa; padding:6px;">
-      <span class="name"></span>
-    </td>
-
-    <td style="border:1px solid #bfb6aa; padding:6px;">
-      <span class="club"></span>
-    </td>
-
-    <td style="border:1px solid #bfb6aa; padding:6px; text-align:center;">
-      <span class="personStatus"></span>
-    </td>
-
-    <td style="border:1px solid #bfb6aa; padding:6px; text-align:center;">
-      <button type="button"
-              onclick="lookupAddedCrewMember(this.closest('tr').querySelector('input'))"
-              style="background:#f1f4ef; color:#2f241d; border:1px solid #bfb6aa; padding:6px 8px; font-weight:bold; cursor:pointer; font-size:12px; white-space:nowrap;">
-        🔍 ΑΝΑΖΗΤΗΣΗ
-      </button>
-
-      <button type="button"
-              onclick="deleteAddedCrewRow(this)"
-              style="color:#b00020; background:#fff; border:1px solid #bfb6aa; padding:6px 8px; font-weight:bold; cursor:pointer; font-size:12px; white-space:nowrap; margin-top:4px;">
-        ✖ ΔΙΑΓΡΑΦΗ
-      </button>
-    </td>
-  `;
-
-  tbody.appendChild(tr);
-  renumberAddedCrewRows();
+  return table;
 }
 
-async function lookupAddedCrewMember(input) {
-  const tr = input.closest("tr");
-  const card = String(input.value || "").trim();
+function showAddedCrewEntry() {
+  const entryBox = document.getElementById("addedCrewEntryBox");
+  const cardInput = document.getElementById("addedCrewCardInput");
+  const statusEl = document.getElementById("addedCrewSearchStatus");
 
-  const nameEl = tr.querySelector(".name");
-  const clubEl = tr.querySelector(".club");
-  const statusEl = tr.querySelector(".personStatus");
+  if (!entryBox || !cardInput) return;
 
-  tr.dataset.cardStatus = "";
-  tr.dataset.checkedCard = "";
+  entryBox.style.display = "block";
+  cardInput.value = "";
 
-  nameEl.innerText = "";
-  clubEl.innerText = "";
+  if (statusEl) {
+    statusEl.innerText = "";
+    statusEl.style.color = "";
+  }
+
+  cardInput.focus();
+}
+
+async function searchAndAddAddedCrewMember() {
+  const entryBox = document.getElementById("addedCrewEntryBox");
+  const cardInput = document.getElementById("addedCrewCardInput");
+  const statusEl = document.getElementById("addedCrewSearchStatus");
+
+  if (!cardInput || !statusEl) return;
+
+  const card = String(cardInput.value || "").trim();
 
   if (!card) {
-    statusEl.innerText = "Βάλτε δελτίο";
+    statusEl.innerText = "Παρακαλούμε συμπληρώστε αριθμό αθλητικού δελτίου.";
     statusEl.style.color = "#b00020";
-    statusEl.style.fontWeight = "bold";
+    cardInput.focus();
     return;
   }
 
-  statusEl.innerText = "Έλεγχος...";
+  const existingRows = document.querySelectorAll("#addedCrewTable tbody tr");
+  for (const row of existingRows) {
+    const existingCard = String(row.querySelector("input")?.value || "").trim();
+    if (existingCard === card) {
+      statusEl.innerText = "Το συγκεκριμένο δελτίο έχει ήδη προστεθεί.";
+      statusEl.style.color = "#b00020";
+      return;
+    }
+  }
+
+  statusEl.innerText = "Γίνεται αναζήτηση…";
   statusEl.style.color = "#7a5a00";
-  statusEl.style.fontWeight = "bold";
 
   try {
-    const res = await fetch(PERSON_LOOKUP_URL + "?type=person&id=" + encodeURIComponent(card));
+    const res = await fetch(
+      PERSON_LOOKUP_URL + "?type=person&id=" + encodeURIComponent(card)
+    );
     const json = await res.json();
 
-    tr.dataset.checkedCard = card;
-
     if (!json.found || !json.data) {
-      tr.dataset.cardStatus = "not_found";
-      nameEl.innerText = "Δεν βρέθηκε";
-      clubEl.innerText = "";
-      statusEl.innerText = "✖ ΔΕΝ ΒΡΕΘΗΚΕ";
+      statusEl.innerText =
+        "✖ Το δελτίο που καταχωρήσατε δεν υπάρχει. " +
+        "Παρακαλούμε καταχωρήστε ενεργό αθλητικό δελτίο.";
       statusEl.style.color = "#b00020";
-      statusEl.style.fontWeight = "bold";
       return;
     }
 
     const data = json.data || {};
-    const status = String(data.status || "").trim();
+    const athleteStatus = String(data.status || "").trim();
+    const isValid = athleteStatus === "Active" || athleteStatus === "";
 
-    nameEl.innerText = data.name || "";
-    clubEl.innerText = shortClubName(data.club || "");
-
-    if (status === "Active" || status === "") {
-      tr.dataset.cardStatus = "valid";
-      statusEl.innerText = status === "Active" ? "✔ ΕΓΚΥΡΟ" : "✔ ΒΡΕΘΗΚΕ";
-      statusEl.style.color = "#2e7d32";
-      statusEl.style.fontWeight = "bold";
-    } else {
-      tr.dataset.cardStatus = "invalid";
-      statusEl.innerText = "✖ ΑΚΥΡΟ";
+    if (!isValid) {
+      statusEl.innerText =
+        "✖ Το δελτίο που καταχωρήσατε δεν είναι ενεργό. " +
+        "Παρακαλούμε καταχωρήστε ενεργό αθλητικό δελτίο.";
       statusEl.style.color = "#b00020";
-      statusEl.style.fontWeight = "bold";
+      return;
     }
 
-} catch (err) {
-  console.error(err);
+    const table = ensureAddedCrewTable();
+    if (!table) {
+      throw new Error("Δεν δημιουργήθηκε ο πίνακας νέων μελών.");
+    }
 
-  tr.dataset.cardStatus = "error";
-  statusEl.innerText = "✖ ΣΦΑΛΜΑ";
-  statusEl.style.color = "#b00020";
-  statusEl.style.fontWeight = "bold";
-} finally {
-  refreshWosrSelectors();
+    const tbody = table.querySelector("tbody");
+    const tr = document.createElement("tr");
+
+    tr.dataset.cardStatus = "valid";
+    tr.dataset.checkedCard = card;
+
+    tr.innerHTML = `
+      <td style="border:1px solid #bfb6aa; padding:6px; text-align:center;">
+        <input
+          type="text"
+          value="${card}"
+          readonly
+          style="width:78px; height:34px; font-size:15px; text-align:center;
+                 border:0; background:transparent; font-weight:bold;"
+        >
+      </td>
+
+      <td style="border:1px solid #bfb6aa; padding:6px;">
+        <span class="name">${data.name || ""}</span>
+      </td>
+
+      <td style="border:1px solid #bfb6aa; padding:6px;">
+        <span class="club">${shortClubName(data.club || "")}</span>
+      </td>
+
+      <td style="border:1px solid #bfb6aa; padding:4px; text-align:center; width:42px;">
+        <button
+          type="button"
+          onclick="deleteAddedCrewRow(this)"
+          title="Αφαίρεση μέλους"
+          aria-label="Αφαίρεση μέλους"
+          style="color:#b00020; background:transparent; border:none;
+                 padding:5px; cursor:pointer; font-size:18px;"
+        >
+          🗑
+        </button>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+
+    statusEl.innerText = "✓ Το μέλος προστέθηκε επιτυχώς.";
+    statusEl.style.color = "#2e7d32";
+    cardInput.value = "";
+
+    if (entryBox) {
+      entryBox.style.display = "none";
+    }
+
+    refreshWosrSelectors();
+
+  } catch (err) {
+    console.error(err);
+    statusEl.innerText =
+      "✖ Σφάλμα επικοινωνίας. Παρακαλούμε δοκιμάστε ξανά.";
+    statusEl.style.color = "#b00020";
+  }
 }
+
+/*
+ * Διατηρείται για συμβατότητα με τυχόν παλιές κλήσεις.
+ * Η νέα ροή ανοίγει πρώτα το πεδίο αναζήτησης.
+ */
+function addAddedCrewRow() {
+  showAddedCrewEntry();
 }
 
 function deleteAddedCrewRow(btn) {
-  btn.closest("tr").remove();
+  const row = btn.closest("tr");
+  if (row) row.remove();
 
   const tbody = document.querySelector("#addedCrewTable tbody");
-
   if (tbody && tbody.children.length === 0) {
-    document.getElementById("addedCrewList").innerHTML = "";
+    const list = document.getElementById("addedCrewList");
+    if (list) list.innerHTML = "";
   }
 
-  renumberAddedCrewRows();
   refreshWosrSelectors();
 }
 
 function renumberAddedCrewRows() {
-  document.querySelectorAll("#addedCrewTable tbody tr").forEach((tr, index) => {
-    tr.querySelector(".rowNo").innerText = index + 1;
-  });
+  // Η στήλη Α/Α έχει αφαιρεθεί.
 }
-    
+
 // 👉 ΒΑΖΕΙΣ ΕΔΩ ΤΗ ΝΕΑ FUNCTION
 async function lookupPerson(input) {
   const id = input.value.trim();
@@ -3348,6 +3470,22 @@ if (changeWosr) {
    const finalCrew = getFinalCrewCandidates();
 
   try {
+    // Εμφανίζουμε πρώτα την οθόνη αναμονής και δίνουμε
+    // στον browser λίγο χρόνο να τη ζωγραφίσει πριν αρχίσει η αποθήκευση.
+    showJotformLoading();
+
+    const submitButton = document.querySelector(
+      'button[onclick="validateCrewChangeBeforeSubmit()"]'
+    );
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.dataset.originalText = submitButton.textContent;
+      submitButton.textContent = "ΠΑΡΑΚΑΛΟΥΜΕ ΠΕΡΙΜΕΝΕΤΕ...";
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 80));
+
     setStatus(
       "Αποθηκεύονται οι αλλαγές πληρώματος...",
       false,
@@ -3383,6 +3521,19 @@ if (changeWosr) {
     window.location.href = editUrl;
 
   } catch (error) {
+    hideJotformLoading();
+
+    const submitButton = document.querySelector(
+      'button[onclick="validateCrewChangeBeforeSubmit()"]'
+    );
+
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent =
+        submitButton.dataset.originalText ||
+        "ΣΥΝΕΧΕΙΑ ΣΤΗΝ ΚΑΤΑΧΩΡΗΣΗ ΑΛΛΑΓΗΣ";
+    }
+
     console.error(
       "Σφάλμα αποθήκευσης αλλαγής πληρώματος:",
       error
