@@ -1644,7 +1644,12 @@ if (acceptTerms && !acceptTerms.checked) {
       hideResult();
 
       try {
-       const response = await fetch(BOAT_LOOKUP_URL + "?id=" + encodeURIComponent(sailNumber));
+       const response = await fetch(
+  BOAT_LOOKUP_URL +
+  "?id=" + encodeURIComponent(sailNumber) +
+  "&_ts=" + Date.now(),
+  { cache: "no-store" }
+);
         const json = await response.json();
 
         if (!json.ok) {
