@@ -2027,8 +2027,13 @@ async function continueToForm() {
       true
     );
 
-const page3Separator = editUrl.includes("?") ? "&" : "?";
-window.location.href = editUrl + page3Separator + "jumpToPage=3";
+const euEditUrl = editUrl.replace(
+  "https://www.jotform.com/edit/",
+  "https://eu.jotform.com/edit/"
+);
+
+const page3Separator = euEditUrl.includes("?") ? "&" : "?";
+window.location.href = euEditUrl + page3Separator + "jumpToPage=3";
 return;
     formWrap.style.display = "block";
 
