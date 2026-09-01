@@ -2027,7 +2027,8 @@ async function continueToForm() {
       true
     );
 
-    formFrame.src = editUrl;
+   const page3Separator = editUrl.includes("?") ? "&" : "?";
+formFrame.src = editUrl + page3Separator + "jumpToPage=3";
     formWrap.style.display = "block";
 
     document.body.classList.add("jotform-open");
