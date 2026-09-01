@@ -2610,7 +2610,6 @@ ${data.second_captain_name ? `
 </label>
 
 
-
  <div id="addCrewChangeBox" style="display:none; border:1px solid #bfb6aa; background:#fff; padding:14px; margin-bottom:16px; text-align:left;">
   <div style="font-weight:bold; font-size:18px; text-align:center; margin-bottom:10px;">
     ΝΕΑ ΜΕΛΗ ΠΟΥ ΘΑ ΠΡΟΣΤΕΘΟΥΝ
@@ -2767,7 +2766,6 @@ document.getElementById("changeWosrCrew").addEventListener("change", function ()
   document.getElementById("wosrChangeBox").style.display = this.checked ? "block" : "none";
   refreshWosrSelectors();
 });
-
 
 
 document.querySelectorAll(".removeCrewCheck").forEach((check) => {
@@ -3400,10 +3398,9 @@ function updateWosrRequirement() {
   async function validateCrewChangeBeforeSubmit() {
   const willAdd = document.getElementById("willAddCrew")?.checked || false;
   const willRemove = document.getElementById("willRemoveCrew")?.checked || false;
-  const changeWosr = document.getElementById("changeWosrCrew")?.checked || false;
 
-  if (!willAdd && !willRemove && !changeWosr) {
-    alert("Παρακαλώ επιλέξτε τουλάχιστον μία αλλαγή πληρώματος.");
+  if (!willAdd && !willRemove) {
+    alert("Παρακαλώ επιλέξτε αν θα προσθέσετε ή/και θα αφαιρέσετε μέλος πληρώματος.");
     return;
   }
 
@@ -3447,6 +3444,7 @@ function updateWosrRequirement() {
     }
   }
 
+const changeWosr = document.getElementById("changeWosrCrew")?.checked || false;
 const wosrRequired = mustChangeWosrMembers();
 
 if (wosrRequired && !changeWosr) {
@@ -3514,15 +3512,13 @@ if (changeWosr) {
     }
 
     setStatus(
-      "Οι αλλαγές αποθηκεύτηκαν επιτυχώς.",
+      "Οι αλλαγές πληρώματος αποθηκεύτηκαν επιτυχώς.",
       false,
       false,
       true
     );
 
-    const page3Separator = editUrl.includes("?") ? "&" : "?";
-    window.location.href = editUrl + page3Separator + "jumpToPage=3";
-    return;
+    window.location.href = editUrl;
 
   } catch (error) {
     hideJotformLoading();
