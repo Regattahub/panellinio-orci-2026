@@ -3398,9 +3398,10 @@ function updateWosrRequirement() {
   async function validateCrewChangeBeforeSubmit() {
   const willAdd = document.getElementById("willAddCrew")?.checked || false;
   const willRemove = document.getElementById("willRemoveCrew")?.checked || false;
+  const changeWosr = document.getElementById("changeWosrCrew")?.checked || false;
 
-  if (!willAdd && !willRemove) {
-    alert("Παρακαλώ επιλέξτε αν θα προσθέσετε ή/και θα αφαιρέσετε μέλος πληρώματος.");
+  if (!willAdd && !willRemove && !changeWosr) {
+    alert("Παρακαλώ επιλέξτε τουλάχιστον μία αλλαγή πληρώματος.");
     return;
   }
 
@@ -3444,7 +3445,6 @@ function updateWosrRequirement() {
     }
   }
 
-const changeWosr = document.getElementById("changeWosrCrew")?.checked || false;
 const wosrRequired = mustChangeWosrMembers();
 
 if (wosrRequired && !changeWosr) {
