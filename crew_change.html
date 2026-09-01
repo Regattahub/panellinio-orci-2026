@@ -2609,6 +2609,17 @@ ${data.second_captain_name ? `
   Θέλετε να αλλάξετε τα δηλωμένα μέλη WS OSR 6.05.3;
 </label>
 
+<label style="display:block; font-size:16px; font-weight:bold; margin:10px 0;">
+  <input type="checkbox" id="changeCaptainResponsible" style="width:20px; height:20px; margin-right:8px; vertical-align:middle;">
+  Αλλάζει ο Κυβερνήτης / Υπεύθυνος Υποβολής;
+</label>
+
+<div id="captainChangeNote"
+     style="display:none; margin:8px 0 14px 28px; padding:9px 11px; background:#fff8d8; border:1px solid #d39b00; font-size:13px; line-height:1.45;">
+  Μετά την καταχώρηση των αλλαγών θα ανοίξει η υπάρχουσα υποβολή στη σελίδα 3,
+  ώστε ο νέος Υπεύθυνος Υποβολής να ελέγξει e-mail και τηλέφωνο και να υπογράψει εκ νέου.
+</div>
+
 
  <div id="addCrewChangeBox" style="display:none; border:1px solid #bfb6aa; background:#fff; padding:14px; margin-bottom:16px; text-align:left;">
   <div style="font-weight:bold; font-size:18px; text-align:center; margin-bottom:10px;">
@@ -2766,6 +2777,17 @@ document.getElementById("changeWosrCrew").addEventListener("change", function ()
   document.getElementById("wosrChangeBox").style.display = this.checked ? "block" : "none";
   refreshWosrSelectors();
 });
+
+
+const changeCaptainResponsibleEl = document.getElementById("changeCaptainResponsible");
+if (changeCaptainResponsibleEl) {
+  changeCaptainResponsibleEl.addEventListener("change", function () {
+    const note = document.getElementById("captainChangeNote");
+    if (note) {
+      note.style.display = this.checked ? "block" : "none";
+    }
+  });
+}
 
 
 document.querySelectorAll(".removeCrewCheck").forEach((check) => {
@@ -3399,9 +3421,11 @@ function updateWosrRequirement() {
   const willAdd = document.getElementById("willAddCrew")?.checked || false;
   const willRemove = document.getElementById("willRemoveCrew")?.checked || false;
   const changeWosr = document.getElementById("changeWosrCrew")?.checked || false;
+  const changeCaptainResponsible =
+    document.getElementById("changeCaptainResponsible")?.checked || false;
 
-  if (!willAdd && !willRemove && !changeWosr) {
-    alert("Παρακαλώ επιλέξτε τουλάχιστον μία αλλαγή πληρώματος.");
+  if (!willAdd && !willRemove && !changeWosr && !changeCaptainResponsible) {
+    alert("Παρακαλώ επιλέξτε τουλάχιστον μία αλλαγή.");
     return;
   }
 
@@ -3512,13 +3536,40 @@ if (changeWosr) {
     }
 
     setStatus(
-      "Οι αλλαγές πληρώματος αποθηκεύτηκαν επιτυχώς.",
+      "Οι αλλαγές αποθηκεύτηκαν επιτυχώς.",
       false,
       false,
       true
     );
 
-    window.location.href = editUrl;
+    if (changeCaptainResponsible) {
+      const page3Separator = editUrl.includes("?") ? "&" : "?";
+      window.location.href = editUrl + page3Separator + "jumpToPage=3";
+      return;
+    }
+
+    hideJotformLoading();
+
+    const crewScreen = document.getElementById("crewScreen");
+    if (crewScreen) {
+      crewScreen.innerHTML = `
+        <div style="max-width:680px; margin:30px auto; padding:26px;
+                    border:2px solid #8da170; background:#f8fff1;
+                    text-align:center; border-radius:8px;">
+          <div style="font-size:26px; font-weight:900; color:#2e7d32; margin-bottom:14px;">
+            Η ΑΛΛΑΓΗ ΚΑΤΑΧΩΡΗΘΗΚΕ
+          </div>
+          <div style="font-size:17px; line-height:1.55; color:#2f241d;">
+            Οι αλλαγές πληρώματος αποθηκεύτηκαν επιτυχώς.
+          </div>
+          <div style="font-size:14px; line-height:1.5; color:#5f5147; margin-top:12px;">
+            Μπορείτε να κλείσετε αυτή τη σελίδα.
+          </div>
+        </div>
+      `;
+      crewScreen.style.display = "block";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 
   } catch (error) {
     hideJotformLoading();
