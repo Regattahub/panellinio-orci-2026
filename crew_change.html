@@ -3525,7 +3525,8 @@ if (changeWosr) {
       true
     );
 
-    window.location.href = editUrl;
+  const page3Separator = editUrl.includes("?") ? "&" : "?";
+window.location.href = editUrl + page3Separator + "jumpToPage=3";
 
   } catch (error) {
     hideJotformLoading();
