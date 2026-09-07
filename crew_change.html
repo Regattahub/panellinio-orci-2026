@@ -1460,25 +1460,15 @@ params.set(fieldNames.crew_json, JSON.stringify(
   }))
 ));
 
-const submissionEditUrl = String(
-  data.submission_edit_url ||
-  data.submissionEditUrl ||
-  data["Submission Edit URL"] ||
-  ""
-).trim();
+const newCrewChangeFormUrl =
+  "https://form.jotform.com/262427976327367";
 
-if (!submissionEditUrl) {
-  alert("Δεν βρέθηκε το Edit Link της αρχικής υποβολής.");
-  throw new Error("Missing Submission Edit URL");
-}
-
-const separator = submissionEditUrl.includes("?") ? "&" : "?";
-
-return submissionEditUrl + separator + Array.from(params.entries())
-  .map(([key, value]) =>
-    encodeURIComponent(key) + "=" + encodeURIComponent(value)
-  )
-  .join("&");
+return newCrewChangeFormUrl + "?" +
+  Array.from(params.entries())
+    .map(([key, value]) =>
+      encodeURIComponent(key) + "=" + encodeURIComponent(value)
+    )
+    .join("&");
 }
 
 function shortClubName(club) {
@@ -2007,33 +1997,118 @@ async function continueToForm() {
       crewRowsForCheck
     );
 
-    const editUrl = String(
-      response.submissionEditUrl ||
-      lastFoundData.submission_edit_url ||
-      lastFoundData.submissionEditUrl ||
-      ""
-    ).trim();
-
-    if (!editUrl) {
-      throw new Error(
-        "Η ενημέρωση έγινε, αλλά δεν βρέθηκε το Edit URL."
-      );
-    }
-
-    setStatus(
-      "Οι αλλαγές αποθηκεύτηκαν επιτυχώς.",
-      false,
-      false,
-      true
-    );
-
-const euEditUrl = editUrl.replace(
-  "https://www.jotform.com/edit/",
-  "https://eu.jotform.com/edit/"
+/*
+ * Η αρχική submission χρησιμοποιήθηκε μόνο για έλεγχο.
+ * Τώρα ανοίγουμε τη ΝΕΑ φόρμα αλλαγής πληρώματος.
+ */
+const newFormUrl = new URL(
+  buildPrefillUrl(lastFoundData)
 );
 
-const page3Separator = euEditUrl.includes("?") ? "&" : "?";
-window.location.href = euEditUrl + page3Separator + "jumpToPage=3";
+/*
+ * Μορφοποίηση μέλους για τα δύο νέα πεδία της Jotform.
+ */
+function formatChangedMembersForJotform(members) {
+  if (!Array.isArray(members)) {
+    return "";
+  }
+
+  return members
+    .map(function(member) {
+      const name = String(
+        member?.name || ""
+      ).trim();
+
+      const card = String(
+        member?.card || ""
+      ).trim();
+
+      const club = String(
+        member?.club || ""
+      ).trim();
+
+      let text = name;
+
+      if (card) {
+        text +=
+          (text ? " – " : "") +
+          "Δελτίο " +
+          card;
+      }
+
+      if (club) {
+        text +=
+          (text ? " – " : "") +
+          club;
+      }
+
+      return text;
+    })
+    .filter(Boolean)
+    .join(" ; ");
+}
+
+const addedMembersText =
+  formatChangedMembersForJotform(
+    response.addedMembers
+  );
+
+const removedMembersText =
+  formatChangedMembersForJotform(
+    response.removedMembers
+  );
+
+/*
+ * ΝΕΑ JOTFORM ΠΕΔΙΑ
+ *
+ * input553 = ΜΕΛΟΣ ΠΟΥ ΠΡΟΣΤΕΘΗΚΕ
+ * input554 = ΜΕΛΟΣ ΠΟΥ ΑΦΑΙΡΕΘΗΚΕ
+ */
+newFormUrl.searchParams.set(
+  "input553",
+  addedMembersText
+);
+
+newFormUrl.searchParams.set(
+  "input554",
+  removedMembersText
+);
+
+/*
+ * Διαγνωστικό — προσωρινά το κρατάμε.
+ */
+console.log(
+  "UPDATE CREW RESPONSE:",
+  response
+);
+
+console.log(
+  "ΜΕΛΟΣ ΠΟΥ ΠΡΟΣΤΕΘΗΚΕ:",
+  addedMembersText
+);
+
+console.log(
+  "ΜΕΛΟΣ ΠΟΥ ΑΦΑΙΡΕΘΗΚΕ:",
+  removedMembersText
+);
+
+setStatus(
+  "Ο έλεγχος ολοκληρώθηκε. Ανοίγει η φόρμα καταχώρησης αλλαγής.",
+  false,
+  false,
+  true
+);
+
+/*
+ * Πηγαίνουμε στη σελίδα 3 της ΝΕΑΣ φόρμας.
+ */
+newFormUrl.searchParams.set(
+  "jumpToPage",
+  "3"
+);
+
+window.location.href =
+  newFormUrl.toString();
 return;
     formWrap.style.display = "block";
 
